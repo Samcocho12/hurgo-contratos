@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import SignatureCanvas from 'react-signature-canvas';
 import { supabase } from '../../../lib/supabaseClient';
+import AppHeader from '../../../components/AppHeader';
 
 export default function FirmarContrato() {
   const router = useRouter();
@@ -67,10 +68,17 @@ export default function FirmarContrato() {
     router.push('/conductor');
   }
 
-  if (!contrato) return <main className="page"><p className="page-sub">Cargando contrato…</p></main>;
+  if (!contrato) return (
+    <>
+      <AppHeader />
+      <main className="page"><p className="page-sub">Cargando contrato…</p></main>
+    </>
+  );
 
   if (contrato.estado === 'firmado') {
     return (
+      <>
+      <AppHeader />
       <main className="page">
         <button className="back-link" onClick={() => router.push('/conductor')}>← Volver</button>
         <h1 className="page-title">{contrato.titulo}</h1>
@@ -78,10 +86,10 @@ export default function FirmarContrato() {
 
         {contrato.pdf_firmado_url ? (
           <iframe src={contrato.pdf_firmado_url} title="Contrato firmado"
-            style={{ width: '100%', height: 420, border: '1.5px solid var(--ink)', borderRadius: 3, marginBottom: 20 }} />
+            style={{ width: '100%', height: 420, border: '1px solid var(--line)', borderRadius: 12, marginBottom: 20 }} />
         ) : contrato.contrato_original_url ? (
           <iframe src={contrato.contrato_original_url} title="Contrato"
-            style={{ width: '100%', height: 420, border: '1.5px solid var(--ink)', borderRadius: 3, marginBottom: 20 }} />
+            style={{ width: '100%', height: 420, border: '1px solid var(--line)', borderRadius: 12, marginBottom: 20 }} />
         ) : null}
 
         <div className="signed-block">
@@ -95,38 +103,42 @@ export default function FirmarContrato() {
           </a>
         )}
       </main>
+      </>
     );
   }
 
   return (
-    <main className="page">
-      <button className="back-link" onClick={() => router.push('/conductor')}>← Volver</button>
-      <h1 className="page-title">{contrato.titulo}</h1>
-      <p className="page-sub">Lee el contrato completo antes de firmar.</p>
+    <>
+      <AppHeader />
+      <main className="page">
+        <button className="back-link" onClick={() => router.push('/conductor')}>← Volver</button>
+        <h1 className="page-title">{contrato.titulo}</h1>
+        <p className="page-sub">Lee el contrato completo antes de firmar.</p>
 
-      {contrato.contrato_original_url ? (
-        <iframe src={contrato.contrato_original_url} title="Contrato"
-          style={{ width: '100%', height: 420, border: '1.5px solid var(--ink)', borderRadius: 3, marginBottom: 20 }} />
-      ) : (
-        <div className="contract-paper">{contrato.contenido || 'Este contrato no tiene contenido cargado.'}</div>
-      )}
+        {contrato.contrato_original_url ? (
+          <iframe src={contrato.contrato_original_url} title="Contrato"
+            style={{ width: '100%', height: 420, border: '1px solid var(--line)', borderRadius: 12, marginBottom: 20 }} />
+        ) : (
+          <div className="contract-paper">{contrato.contenido || 'Este contrato no tiene contenido cargado.'}</div>
+        )}
 
-      <label>Tu firma</label>
-      <div className="sign-box">
-        <SignatureCanvas
-          ref={sigPadRef}
-          penColor="#A63A2E"
-          canvasProps={{ className: 'sig-canvas', width: 400, height: 180 }}
-        />
-      </div>
-      <div className="sign-tools">
-        <button className="link-btn" onClick={() => sigPadRef.current.clear()}>Borrar firma</button>
-      </div>
+        <label style={{ marginTop: 0 }}>Tu firma</label>
+        <div className="sign-box">
+          <SignatureCanvas
+            ref={sigPadRef}
+            penColor="#16215C"
+            canvasProps={{ className: 'sig-canvas', width: 400, height: 180 }}
+          />
+        </div>
+        <div className="sign-tools">
+          <button className="link-btn" onClick={() => sigPadRef.current.clear()}>Borrar firma</button>
+        </div>
 
-      {error && <div className="error">{error}</div>}
-      <button className="btn btn-stamp" onClick={confirmarFirma} disabled={enviando}>
-        {enviando ? 'Guardando firma...' : 'Firmar y aceptar contrato'}
-      </button>
-    </main>
+        {error && <div className="error">{error}</div>}
+        <button className="btn btn-stamp" onClick={confirmarFirma} disabled={enviando}>
+          {enviando ? 'Guardando firma...' : 'Firmar y aceptar contrato'}
+        </button>
+      </main>
+    </>
   );
 }

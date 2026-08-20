@@ -1,6 +1,18 @@
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import { supabaseAdmin } from '../../lib/supabaseAdmin';
 
+// Coordenadas calibradas para la plantilla oficial de Hurgo Transporte
+// ("Contrato de Vinculación Transitoria..."), medidas sobre el renglón
+// "Firma:" de la sección "POR EL VINCULADO:" en la última página del
+// documento (tamaño carta, 612x792pt). Si el equipo cambia la plantilla,
+// estos números hay que recalibrarlos.
+const FIRMA_PLANTILLA = {
+  x: 85,        // inicio del renglón de firma
+  anchoMax: 195, // ancho disponible del renglón (85 a ~290)
+  yLinea: 201,   // altura de la línea, medida desde abajo de la página
+  altoMax: 13,   // espacio disponible arriba de la línea sin chocar con "Documento de Identidad"
+};
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Método no permitido' });
 
@@ -17,56 +29,79 @@ export default async function handler(req, res) {
       .single();
     if (fetchError || !contrato) throw new Error('Contrato no encontrado');
 
+    const firmaBytes = Buffer.from(firmaPng.split(',')[1], 'base64');
     let pdfDoc;
-    let font, fontBold;
+    let font;
 
     if (contrato.contrato_original_url) {
-      // Parte del PDF que subió el coordinador y le agrega una página de firma al final
+      // Parte del PDF que subió el coordinador (la plantilla ya llena) y
+      // coloca la firma directamente sobre el renglón "Firma:" del
+      // conductor, en la última página — sin agregar hojas nuevas.
       const original = await fetch(contrato.contrato_original_url);
       if (!original.ok) throw new Error('No se pudo descargar el PDF original');
       const originalBytes = await original.arrayBuffer();
       pdfDoc = await PDFDocument.load(originalBytes);
       font = await pdfDoc.embedFont(StandardFonts.Helvetica);
-      fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+
+      const paginas = pdfDoc.getPages();
+      const ultimaPagina = paginas[paginas.length - 1];
+      const { width: anchoPagina } = ultimaPagina.getSize();
+
+      const firmaImg = await pdfDoc.embedPng(firmaBytes);
+      const escala = Math.min(
+        FIRMA_PLANTILLA.anchoMax / firmaImg.width,
+        FIRMA_PLANTILLA.altoMax / firmaImg.height
+      );
+      const anchoFirma = firmaImg.width * escala;
+      const altoFirma = firmaImg.height * escala;
+
+      // Si la plantilla es de tamaño distinto a carta (612pt de ancho),
+      // ajusta proporcionalmente la posición horizontal.
+      const factorAncho = anchoPagina / 612;
+
+      ultimaPagina.drawImage(firmaImg, {
+        x: FIRMA_PLANTILLA.x * factorAncho,
+        y: FIRMA_PLANTILLA.yLinea,
+        width: anchoFirma,
+        height: altoFirma,
+      });
+
+      ultimaPagina.drawText(
+        `Firmado electrónicamente el ${new Date().toLocaleString('es-CO')} · Placa ${contrato.conductor_placa || ''}`,
+        { x: FIRMA_PLANTILLA.x * factorAncho, y: FIRMA_PLANTILLA.yLinea - 20, size: 6.5, font, color: rgb(0.4, 0.4, 0.4) }
+      );
     } else {
-      // Sin PDF original: arma un documento simple desde el texto guardado
+      // Sin PDF original: arma un documento simple desde el texto guardado,
+      // con la firma al final (caso de contratos sin plantilla).
       pdfDoc = await PDFDocument.create();
       font = await pdfDoc.embedFont(StandardFonts.Helvetica);
-      fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+      const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
       let page = pdfDoc.addPage([595, 842]);
       let y = 792;
       page.drawText(contrato.titulo, { x: 50, y, size: 16, font: fontBold });
       y -= 25;
       const lineas = envolverTexto(contrato.contenido || '', font, 11, 495);
       for (const linea of lineas) {
-        if (y < 100) { page = pdfDoc.addPage([595, 842]); y = 792; }
+        if (y < 150) { page = pdfDoc.addPage([595, 842]); y = 792; }
         page.drawText(linea, { x: 50, y, size: 11, font });
         y -= 16;
       }
+      y -= 20;
+      page.drawText(`Conductor: ${contrato.conductor_nombre || ''} · Placa: ${contrato.conductor_placa || ''}`, { x: 50, y, size: 10, font });
+      y -= 14;
+      page.drawText(`Firmado el: ${new Date().toLocaleString('es-CO')}`, { x: 50, y, size: 10, font });
+      y -= 30;
+
+      const firmaImg = await pdfDoc.embedPng(firmaBytes);
+      const firmaDims = firmaImg.scale(0.35);
+      page.drawImage(firmaImg, { x: 50, y: y - firmaDims.height, width: firmaDims.width, height: firmaDims.height });
+      page.drawLine({
+        start: { x: 50, y: y - firmaDims.height - 4 },
+        end: { x: 250, y: y - firmaDims.height - 4 },
+        thickness: 0.5, color: rgb(0.3, 0.3, 0.3),
+      });
+      page.drawText('Firma del conductor', { x: 50, y: y - firmaDims.height - 16, size: 9, font, color: rgb(0.4, 0.4, 0.4) });
     }
-
-    // Página final con la firma, agregada siempre al documento
-    const sigPage = pdfDoc.addPage([595, 842]);
-    let y = 792;
-    sigPage.drawText('HURGO CONTRATOS · Constancia de firma', { x: 50, y, size: 12, font: fontBold, color: rgb(0.6, 0.2, 0.18) });
-    y -= 40;
-    sigPage.drawText(contrato.titulo, { x: 50, y, size: 14, font: fontBold });
-    y -= 30;
-    sigPage.drawText(`Conductor: ${contrato.conductor_nombre || ''}`, { x: 50, y, size: 11, font });
-    y -= 18;
-    sigPage.drawText(`Firmado el: ${new Date().toLocaleString('es-CO')}`, { x: 50, y, size: 11, font });
-    y -= 30;
-
-    const firmaBytes = Buffer.from(firmaPng.split(',')[1], 'base64');
-    const firmaImg = await pdfDoc.embedPng(firmaBytes);
-    const firmaDims = firmaImg.scale(0.35);
-    sigPage.drawImage(firmaImg, { x: 50, y: y - firmaDims.height, width: firmaDims.width, height: firmaDims.height });
-    sigPage.drawLine({
-      start: { x: 50, y: y - firmaDims.height - 4 },
-      end: { x: 250, y: y - firmaDims.height - 4 },
-      thickness: 0.5, color: rgb(0.3, 0.3, 0.3),
-    });
-    sigPage.drawText('Firma del conductor', { x: 50, y: y - firmaDims.height - 16, size: 9, font, color: rgb(0.4, 0.4, 0.4) });
 
     const pdfBytes = await pdfDoc.save();
 

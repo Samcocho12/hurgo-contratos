@@ -1,97 +1,220 @@
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap');
 
+/* ============================================================
+   Hurgo Transporte Logística — sistema de diseño
+   Navy + carbón (del logo), acento ámbar tipo señal vial,
+   placas de vehículo como elemento distintivo de identidad.
+   ============================================================ */
 :root{
-  --ink: #1C2333;
-  --ink-soft: #2E3650;
-  --paper: #F5F1E8;
-  --line: #C9C0AC;
-  --stamp: #A63A2E;
-  --stamp-soft: rgba(166,58,46,0.1);
-  --amber: #C98A2C;
-  --amber-soft: rgba(201,138,44,0.14);
-  --green: #4C7A5E;
-  --green-soft: rgba(76,122,94,0.14);
-  --font-display: 'Fraunces', serif;
+  --navy: #16215C;
+  --navy-deep: #0D1440;
+  --navy-soft: rgba(22,33,92,0.07);
+  --carbon: #24262B;
+  --carbon-soft: #4A4D57;
+  --steel: #6B7280;
+  --amber: #F2A93B;
+  --amber-deep: #C97F16;
+  --amber-soft: rgba(242,169,59,0.16);
+  --plate-yellow: #FFC72C;
+  --road-green: #1F7A4D;
+  --road-green-soft: rgba(31,122,77,0.12);
+  --alert: #C23B3B;
+  --alert-soft: rgba(194,59,59,0.1);
+  --purple-soft: #EEE3F7;
+  --purple: #7A4FA0;
+
+  --bg: #EBEEF6;
+  --card: #FFFFFF;
+  --line: #D6DCE9;
+  --ink: #1B1D22;
+  --ink-soft: #656C7E;
+
+  --font-display: 'Oswald', sans-serif;
   --font-body: 'IBM Plex Sans', sans-serif;
-  --font-mono: 'IBM Plex Mono', monospace;
+  --font-mono: 'JetBrains Mono', monospace;
 }
 
 *{box-sizing:border-box;}
-html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);font-family:var(--font-body);}
-#__next{max-width:460px;margin:0 auto;min-height:100vh;background:var(--paper);position:relative;}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);}
+#__next{min-height:100vh;background:var(--bg);position:relative;}
+#__next:has(.login-screen){background:none;}
+.page, .app-header{max-width:480px;margin:0 auto;}
 
-.page{padding:26px 20px 60px;}
-.topbar-inline{margin-bottom:6px;}
-
-.page-title{font-family:var(--font-display);font-size:26px;font-weight:600;margin:0 0 6px;line-height:1.15;}
-.page-sub{font-size:14px;color:var(--ink-soft);margin:0 0 26px;line-height:1.5;}
-
-.login-wrap{padding:8vh 20px 0;text-align:center;max-width:460px;margin:0 auto;}
-.login-mark{
-  width:64px;height:64px;border:2.5px solid var(--ink);border-radius:50%;
-  display:flex;align-items:center;justify-content:center;margin:0 auto 22px;
-  font-family:var(--font-display);font-weight:700;font-size:26px;transform:rotate(-5deg);
+/* ---------- app header (logo bar) ---------- */
+.app-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 20px;background:#fff;
+  border-bottom:3px solid var(--amber);
+  box-shadow:0 2px 8px rgba(22,33,92,0.1);
 }
-.login-wrap h1{font-family:var(--font-display);font-size:28px;font-weight:600;margin:0 0 8px;}
-.login-form{text-align:left;margin-top:20px;}
+.app-header-brand{display:flex;align-items:center;gap:10px;}
+.app-header-logo{height:34px;width:auto;display:block;}
+.app-header-role{
+  font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:0.8px;
+  color:var(--navy);background:var(--navy-soft);border:1px solid var(--navy);
+  padding:6px 12px;border-radius:20px;cursor:pointer;
+}
 
-label{display:block;font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:0.6px;color:var(--ink-soft);margin-bottom:6px;}
+.page{padding:22px 18px 70px;}
+.page-title{font-family:var(--font-display);font-size:26px;font-weight:600;margin:0 0 4px;line-height:1.15;letter-spacing:0.2px;text-transform:uppercase;color:var(--navy);}
+.page-sub{font-size:14px;color:var(--ink-soft);margin:0 0 22px;line-height:1.5;}
+
+/* ---------- fondo con foto (dashboards principales) ---------- */
+.dashboard-bg{
+  min-height:100vh;
+  background-image:linear-gradient(180deg, rgba(13,20,64,0.90) 0%, rgba(13,20,64,0.94) 45%, rgba(13,20,64,0.97) 100%), url('/fondo-camiones.jpg');
+  background-size:cover;
+  background-position:center 30%;
+  background-attachment:fixed;
+}
+.dashboard-bg .page-title{color:#fff;}
+.dashboard-bg .page-sub{color:rgba(255,255,255,0.72);}
+.dashboard-bg .tab-row{background:rgba(255,255,255,0.12);border-color:rgba(255,255,255,0.2);backdrop-filter:blur(4px);}
+.dashboard-bg .tab-item{color:rgba(255,255,255,0.8);}
+.dashboard-bg .tab-item.tab-active{background:var(--amber);color:var(--navy-deep);}
+.dashboard-bg .empty{background:rgba(255,255,255,0.94);}
+.dashboard-bg .link-btn{color:var(--amber);}
+.dashboard-bg label{color:rgba(255,255,255,0.8);}
+.dashboard-bg .back-link{color:rgba(255,255,255,0.85);}
+
+/* ---------- forms ---------- */
+label{display:block;font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:0.6px;color:var(--ink-soft);margin-bottom:6px;margin-top:16px;}
+label:first-of-type{margin-top:0;}
 input, textarea, select{
-  width:100%;padding:13px 14px;border:1.5px solid var(--ink);border-radius:2px;
-  background:#fff;font-family:var(--font-body);font-size:15px;color:var(--ink);margin-bottom:18px;
+  width:100%;padding:13px 14px;border:1.5px solid var(--line);border-radius:8px;
+  background:var(--card);font-family:var(--font-body);font-size:15px;color:var(--ink);
+  transition:border-color .15s ease;
 }
+input:focus, textarea:focus, select:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px var(--navy-soft);}
 textarea{resize:vertical;min-height:140px;line-height:1.5;}
+input[type=file]{padding:10px;background:var(--card);}
 
 .btn{
   display:inline-flex;align-items:center;justify-content:center;gap:8px;
-  width:100%;padding:14px 18px;border:none;border-radius:2px;
+  width:100%;padding:14px 18px;border:none;border-radius:8px;
   font-family:var(--font-body);font-weight:600;font-size:15px;cursor:pointer;text-decoration:none;
+  transition:filter .12s ease, transform .12s ease;
 }
-.btn-primary{background:var(--ink);color:var(--paper);}
-.btn-stamp{background:var(--stamp);color:#fff;margin-top:8px;}
-.btn-ghost{background:transparent;color:var(--ink);border:1.5px solid var(--ink);margin-top:10px;}
+.btn:active{transform:scale(0.985);}
+.btn-primary{background:var(--navy);color:#fff;margin-top:20px;}
+.btn-primary:hover{filter:brightness(1.12);}
+.btn-stamp{background:var(--amber);color:var(--navy-deep);margin-top:20px;font-weight:700;}
+.btn-stamp:hover{filter:brightness(1.05);}
+.btn-ghost{background:transparent;color:var(--navy);border:1.5px solid var(--navy);margin-top:10px;}
+.btn-danger{background:transparent;color:var(--alert);border:1.5px solid var(--alert);}
 .btn-sm{width:auto;padding:9px 16px;font-size:13px;margin-top:0;}
-.card-foot{display:flex;gap:8px;}
-input[type=file]{padding:10px;background:#fff;}
 
-.error{font-family:var(--font-mono);font-size:12px;color:var(--stamp);margin:-10px 0 14px;}
+.error{font-family:var(--font-mono);font-size:12px;color:var(--alert);margin-top:10px;}
 
+/* ---------- login ---------- */
+.login-screen{
+  min-height:100vh;
+  background-image:linear-gradient(160deg, rgba(13,20,64,0.88) 0%, rgba(22,33,110,0.85) 55%, rgba(34,48,110,0.85) 100%), url('/fondo-camiones.jpg');
+  background-size:cover;
+  background-position:center 35%;
+  background-attachment:fixed;
+  display:flex;align-items:center;justify-content:center;padding:24px;
+  position:relative;overflow:hidden;
+}
+.login-screen::before{
+  content:'';position:absolute;top:-120px;right:-120px;width:340px;height:340px;
+  border-radius:50%;background:radial-gradient(circle, rgba(242,169,59,0.18) 0%, transparent 70%);
+}
+.login-screen::after{
+  content:'';position:absolute;bottom:-140px;left:-100px;width:320px;height:320px;
+  border-radius:50%;background:radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%);
+}
+.login-wrap{
+  text-align:center;max-width:400px;width:100%;position:relative;z-index:1;
+  background:#fff;border-radius:18px;padding:40px 32px 36px;
+  box-shadow:0 24px 60px rgba(6,10,40,0.35);
+}
+.login-logo{width:170px;height:auto;margin:0 auto 26px;display:block;}
+.login-wrap h1{font-family:var(--font-display);font-size:21px;font-weight:600;margin:0 0 6px;color:var(--navy);text-transform:uppercase;letter-spacing:0.5px;}
+.login-wrap p{color:var(--ink-soft);}
+.login-form{text-align:left;margin-top:24px;}
+.login-divider{
+  display:flex;align-items:center;gap:12px;margin:26px 0;
+  font-family:var(--font-mono);font-size:11px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:1px;
+}
+.login-divider::before,.login-divider::after{content:'';flex:1;height:1px;background:var(--line);}
+.login-coord-access{margin-top:22px;padding-top:18px;border-top:1px solid var(--line);}
+
+/* ---------- cards / lists ---------- */
 .card-link{text-decoration:none;color:inherit;display:block;}
 .card{
-  border:1.5px solid var(--ink);border-radius:3px;background:#fff;
-  padding:16px 16px 14px;margin-bottom:14px;position:relative;overflow:hidden;
+  border:1px solid var(--line);border-left:5px solid var(--line);border-radius:12px;background:var(--card);
+  padding:16px 16px 14px;margin-bottom:12px;position:relative;overflow:hidden;
+  box-shadow:0 4px 14px rgba(22,33,92,0.09);
 }
+.card-pendiente{border-left-color:var(--amber);}
+.card-visto{border-left-color:var(--purple);}
+.card-firmado{border-left-color:var(--road-green);}
 .card-row{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
-.card-title{font-family:var(--font-display);font-weight:600;font-size:17px;margin:0 0 3px;}
-.card-meta{font-family:var(--font-mono);font-size:11px;color:var(--ink-soft);}
-.status{font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:0.5px;padding:4px 9px;border-radius:20px;white-space:nowrap;}
-.status-pendiente{background:var(--amber-soft);color:var(--amber);}
-.status-visto{background:#EEE3F7;color:#7A4FA0;}
-.status-firmado{background:var(--green-soft);color:var(--green);}
+.card-title{font-family:var(--font-display);font-weight:600;font-size:16px;margin:0 0 6px;text-transform:uppercase;letter-spacing:0.2px;color:var(--ink);}
+.card-meta{font-family:var(--font-body);font-size:12px;color:var(--ink-soft);}
+
+/* placa estilo real, elemento de identidad */
+.plate-badge{
+  display:inline-flex;align-items:center;justify-content:center;
+  font-family:var(--font-mono);font-weight:700;font-size:13px;letter-spacing:1.5px;
+  background:var(--plate-yellow);color:var(--carbon);
+  border:2px solid var(--carbon);border-radius:5px;
+  padding:3px 9px;
+}
+
+.status{font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:0.5px;padding:5px 11px;border-radius:20px;white-space:nowrap;font-weight:700;}
+.status-pendiente{background:var(--amber);color:var(--navy-deep);}
+.status-visto{background:var(--purple);color:#fff;}
+.status-firmado{background:var(--road-green);color:#fff;}
 
 .stamp-mark{
-  position:absolute;top:10px;right:-26px;transform:rotate(18deg);
-  font-family:var(--font-mono);font-weight:600;font-size:11px;letter-spacing:1px;
-  border:2px solid var(--green);color:var(--green);padding:3px 30px;text-transform:uppercase;
+  position:absolute;top:12px;right:-28px;transform:rotate(18deg);
+  font-family:var(--font-mono);font-weight:700;font-size:10px;letter-spacing:1.5px;
+  background:var(--road-green);color:#fff;padding:3px 32px;text-transform:uppercase;
 }
 
-.empty{text-align:center;padding:50px 16px;color:var(--ink-soft);border:1.5px dashed var(--line);border-radius:3px;}
-.empty-title{font-family:var(--font-display);font-size:17px;color:var(--ink);margin-bottom:4px;}
+.empty{text-align:center;padding:48px 16px;color:var(--ink-soft);border:1.5px dashed var(--line);border-radius:12px;background:var(--card);}
+.empty-title{font-family:var(--font-display);font-size:16px;color:var(--ink);margin-bottom:4px;text-transform:uppercase;}
 .empty-sub{font-size:13px;}
 
 .fab{
-  position:fixed;bottom:24px;right:20px;width:52px;height:52px;border-radius:50%;
-  background:var(--stamp);color:#fff;border:none;font-size:26px;
+  position:fixed;bottom:24px;right:20px;width:54px;height:54px;border-radius:50%;
+  background:var(--amber);color:var(--navy-deep);border:none;font-size:26px;font-weight:700;
   display:flex;align-items:center;justify-content:center;cursor:pointer;
-  box-shadow:0 4px 14px rgba(0,0,0,0.25);
+  box-shadow:0 6px 16px rgba(22,33,92,0.28);
 }
 
-.back-link{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:12px;color:var(--ink-soft);background:none;border:none;cursor:pointer;margin-bottom:18px;padding:0;}
-.contract-paper{background:#fff;border:1.5px solid var(--ink);border-radius:3px;padding:20px;margin-bottom:20px;font-size:14px;line-height:1.7;white-space:pre-wrap;}
-.sign-box{border:1.5px dashed var(--ink);border-radius:3px;background:#fff;}
-.sig-canvas{width:100% !important;height:180px !important;}
-.sign-tools{display:flex;justify-content:flex-end;margin:10px 0 16px;}
-.link-btn{background:none;border:none;font-family:var(--font-mono);font-size:12px;color:var(--stamp);cursor:pointer;padding:4px 0;}
+.back-link{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:12px;color:var(--ink-soft);background:none;border:none;cursor:pointer;margin-bottom:16px;padding:0;}
+.contract-paper{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px;margin-bottom:20px;font-size:14px;line-height:1.7;white-space:pre-wrap;box-shadow:0 4px 14px rgba(22,33,92,0.09);}
+.sign-box{border:2px dashed var(--navy);border-radius:12px;background:var(--card);}
+.sig-canvas{width:100% !important;height:180px !important;border-radius:12px;}
+.sign-tools{display:flex;justify-content:flex-end;margin:10px 0 6px;}
+.link-btn{background:none;border:none;font-family:var(--font-mono);font-size:12px;color:var(--amber-deep);cursor:pointer;padding:4px 0;font-weight:600;}
 
-.signed-block{border:1.5px solid var(--green);border-radius:3px;padding:16px;background:var(--green-soft);margin-bottom:20px;}
-.signed-block .lbl{font-family:var(--font-mono);font-size:11px;text-transform:uppercase;color:var(--green);letter-spacing:0.5px;margin-bottom:8px;}
+.signed-block{border:1.5px solid var(--road-green);border-radius:12px;padding:16px;background:var(--road-green-soft);margin-bottom:20px;}
+.signed-block .lbl{font-family:var(--font-mono);font-size:11px;text-transform:uppercase;color:var(--road-green);letter-spacing:0.5px;margin-bottom:8px;font-weight:700;}
+
+.card-foot{display:flex;gap:8px;margin-top:10px;}
+
+.exit-row{text-align:center;margin-top:28px;}
+
+.tab-row{display:flex;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:4px;margin-bottom:20px;}
+.tab-item{flex:1;text-align:center;padding:9px 2px;border-radius:7px;font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:0.2px;color:var(--ink-soft);cursor:pointer;font-weight:600;}
+.tab-item.tab-active{background:var(--navy);color:#fff;}
+
+/* ---------- stat chips (resumen del dashboard) ---------- */
+.stat-row{display:flex;gap:10px;margin-bottom:22px;}
+.stat-chip{
+  flex:1;border-radius:12px;
+  padding:14px 10px;text-align:center;
+  box-shadow:0 4px 12px rgba(22,33,92,0.12);
+}
+.stat-chip .num{font-family:var(--font-display);font-size:26px;font-weight:700;line-height:1;}
+.stat-chip .lbl{font-family:var(--font-mono);font-size:9px;text-transform:uppercase;letter-spacing:0.6px;margin-top:5px;opacity:0.85;}
+.stat-chip-navy{background:linear-gradient(160deg, var(--navy) 0%, var(--navy-deep) 100%);}
+.stat-chip-navy .num, .stat-chip-navy .lbl{color:#fff;}
+.stat-chip-amber{background:linear-gradient(160deg, var(--amber) 0%, var(--amber-deep) 100%);}
+.stat-chip-amber .num, .stat-chip-amber .lbl{color:var(--navy-deep);}
+.stat-chip-green{background:linear-gradient(160deg, #2A9463 0%, var(--road-green) 100%);}
+.stat-chip-green .num, .stat-chip-green .lbl{color:#fff;}
