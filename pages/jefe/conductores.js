@@ -10,6 +10,8 @@ export default function ConductoresRegistrados() {
   const [mostrarForm, setMostrarForm] = useState(false);
   const [nombre, setNombre] = useState('');
   const [placa, setPlaca] = useState('');
+  const [cedula, setCedula] = useState('');
+  const [celular, setCelular] = useState('');
   const [error, setError] = useState('');
   const [cargando, setCargando] = useState(false);
 
@@ -44,14 +46,19 @@ export default function ConductoresRegistrados() {
     setCargando(true);
     const { error: upsertError } = await supabase
       .from('conductores')
-      .upsert({ placa: placaLimpia, nombre: nombre.trim() });
+      .upsert({
+        placa: placaLimpia,
+        nombre: nombre.trim(),
+        cedula: cedula.trim() || null,
+        celular: celular.trim() || null,
+      });
     setCargando(false);
 
     if (upsertError) {
       setError('No se pudo registrar: ' + upsertError.message);
       return;
     }
-    setNombre(''); setPlaca('');
+    setNombre(''); setPlaca(''); setCedula(''); setCelular('');
     setMostrarForm(false);
     cargar();
   }
@@ -87,6 +94,14 @@ export default function ConductoresRegistrados() {
               placeholder="Ej: ABC123"
               style={{ textTransform: 'uppercase', fontFamily: 'var(--font-mono)', letterSpacing: '1.5px', fontWeight: 700 }}
               maxLength={8} />
+
+            <label>Cédula (opcional)</label>
+            <input value={cedula} onChange={(e) => setCedula(e.target.value)}
+              placeholder="Ej: 1083012966" inputMode="numeric" />
+
+            <label>Celular (opcional)</label>
+            <input value={celular} onChange={(e) => setCelular(e.target.value)}
+              placeholder="Ej: 3001234567" type="tel" />
 
             {error && <div className="error">{error}</div>}
             <button className="btn btn-stamp" disabled={cargando}>
@@ -126,6 +141,9 @@ export default function ConductoresRegistrados() {
               <div>
                 <span className="plate-badge">{formatearPlaca(c.placa)}</span>
                 <div className="card-title" style={{ marginTop: 8 }}>{c.nombre}</div>
+                <div className="card-meta">
+                  {c.cedula && `C.C. ${c.cedula}`}{c.cedula && c.celular && ' · '}{c.celular && c.celular}
+                </div>
                 <div className="card-meta">Registrado el {new Date(c.creado_en).toLocaleDateString('es-CO')}</div>
               </div>
             </div>

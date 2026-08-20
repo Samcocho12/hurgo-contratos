@@ -12,6 +12,17 @@ const FIRMA_PLANTILLA = {
   yLinea: 201,   // altura de la línea, medida desde abajo de la página
   altoMax: 13,   // espacio disponible arriba de la línea sin chocar con "Documento de Identidad"
 };
+const NOMBRE_PLANTILLA = { x: 165, y: 236, anchoMax: 250 };
+const CEDULA_PLANTILLA = { x: 171, y: 219, anchoMax: 160 };
+
+// Dibuja texto en una sola línea, reduciendo el tamaño de letra si hace
+// falta para que no se salga del ancho disponible de la línea.
+function dibujarTextoAjustado(pagina, texto, { x, y, anchoMax }, font, colorTexto) {
+  if (!texto) return;
+  let size = 10;
+  while (size > 6 && font.widthOfTextAtSize(texto, size) > anchoMax) size -= 0.5;
+  pagina.drawText(texto, { x, y, size, font, color: colorTexto });
+}
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Método no permitido' });
@@ -28,6 +39,17 @@ export default async function handler(req, res) {
       .eq('id', contratoId)
       .single();
     if (fetchError || !contrato) throw new Error('Contrato no encontrado');
+
+    // Trae la cédula guardada del conductor (vive en la tabla conductores, por placa)
+    let cedulaConductor = '';
+    if (contrato.conductor_placa) {
+      const { data: conductorData } = await supabaseAdmin
+        .from('conductores')
+        .select('cedula')
+        .eq('placa', contrato.conductor_placa)
+        .maybeSingle();
+      cedulaConductor = conductorData?.cedula || '';
+    }
 
     const firmaBytes = Buffer.from(firmaPng.split(',')[1], 'base64');
     let pdfDoc;
@@ -58,6 +80,18 @@ export default async function handler(req, res) {
       // Si la plantilla es de tamaño distinto a carta (612pt de ancho),
       // ajusta proporcionalmente la posición horizontal.
       const factorAncho = anchoPagina / 612;
+
+      const colorTexto = rgb(0.1, 0.1, 0.15);
+      dibujarTextoAjustado(
+        ultimaPagina, contrato.conductor_nombre || '',
+        { x: NOMBRE_PLANTILLA.x * factorAncho, y: NOMBRE_PLANTILLA.y, anchoMax: NOMBRE_PLANTILLA.anchoMax },
+        font, colorTexto
+      );
+      dibujarTextoAjustado(
+        ultimaPagina, cedulaConductor,
+        { x: CEDULA_PLANTILLA.x * factorAncho, y: CEDULA_PLANTILLA.y, anchoMax: CEDULA_PLANTILLA.anchoMax },
+        font, colorTexto
+      );
 
       ultimaPagina.drawImage(firmaImg, {
         x: FIRMA_PLANTILLA.x * factorAncho,
