@@ -15,6 +15,7 @@ export default function JefeDashboard() {
   const [titulo, setTitulo] = useState('');
   const [placaSeleccionada, setPlacaSeleccionada] = useState('');
   const [archivo, setArchivo] = useState(null);
+  const [anexos, setAnexos] = useState([]);
   const [error, setError] = useState('');
   const [cargando, setCargando] = useState(false);
   const [busquedaPlaca, setBusquedaPlaca] = useState('');
@@ -74,20 +75,43 @@ export default function JefeDashboard() {
       .from('contratos-originales')
       .getPublicUrl(rutaArchivo);
 
-    const { error: insertError } = await supabase.from('contratos').insert({
-      titulo: titulo.trim(),
-      conductor_nombre: conductor.nombre,
-      conductor_placa: conductor.placa,
-      contrato_original_url: urlData.publicUrl,
-      estado: 'pendiente',
-    });
+    const { data: contratoCreado, error: insertError } = await supabase
+      .from('contratos')
+      .insert({
+        titulo: titulo.trim(),
+        conductor_nombre: conductor.nombre,
+        conductor_placa: conductor.placa,
+        contrato_original_url: urlData.publicUrl,
+        estado: 'pendiente',
+      })
+      .select()
+      .single();
 
-    setCargando(false);
     if (insertError) {
+      setCargando(false);
       setError('No se pudo enviar el contrato: ' + insertError.message);
       return;
     }
-    setTitulo(''); setPlacaSeleccionada(''); setArchivo(null);
+
+    // Sube los anexos opcionales (si el coordinador adjuntó alguno)
+    for (const anexo of anexos) {
+      const rutaAnexo = `anexos/${Date.now()}-${anexo.name.replace(/\s+/g, '-')}`;
+      const { error: anexoUploadError } = await supabase.storage
+        .from('contratos-originales')
+        .upload(rutaAnexo, anexo, { contentType: 'application/pdf' });
+      if (anexoUploadError) continue; // si falla uno, sigue con los demás
+      const { data: anexoUrlData } = supabase.storage
+        .from('contratos-originales')
+        .getPublicUrl(rutaAnexo);
+      await supabase.from('contrato_anexos').insert({
+        contrato_id: contratoCreado.id,
+        url: anexoUrlData.publicUrl,
+        nombre: anexo.name,
+      });
+    }
+
+    setCargando(false);
+    setTitulo(''); setPlacaSeleccionada(''); setArchivo(null); setAnexos([]);
     setMostrarForm(false);
     cargarTodo();
   }
@@ -138,9 +162,18 @@ export default function JefeDashboard() {
                 ))}
               </select>
 
-              <label>PDF del contrato</label>
+              <label>PDF del contrato (se firma este)</label>
               <input type="file" accept="application/pdf"
                 onChange={(e) => setArchivo(e.target.files[0] || null)} />
+
+              <label>Anexos (opcional, no se firman)</label>
+              <input type="file" accept="application/pdf" multiple
+                onChange={(e) => setAnexos(Array.from(e.target.files || []))} />
+              {anexos.length > 0 && (
+                <div className="card-meta" style={{ marginTop: -10, marginBottom: 16 }}>
+                  {anexos.length} anexo{anexos.length > 1 ? 's' : ''} seleccionado{anexos.length > 1 ? 's' : ''}: {anexos.map((a) => a.name).join(', ')}
+                </div>
+              )}
 
               {error && <div className="error">{error}</div>}
               <button className="btn btn-stamp" disabled={cargando}>

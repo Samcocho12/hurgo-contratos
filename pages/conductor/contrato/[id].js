@@ -10,6 +10,7 @@ export default function FirmarContrato() {
   const sigPadRef = useRef(null);
 
   const [contrato, setContrato] = useState(null);
+  const [anexos, setAnexos] = useState([]);
   const [error, setError] = useState('');
   const [enviando, setEnviando] = useState(false);
 
@@ -22,6 +23,10 @@ export default function FirmarContrato() {
     const { data: c } = await supabase.from('contratos').select('*').eq('id', id).single();
     if (!c) return;
     setContrato(c);
+
+    const { data: dataAnexos } = await supabase
+      .from('contrato_anexos').select('*').eq('contrato_id', id).order('creado_en', { ascending: true });
+    setAnexos(dataAnexos || []);
 
     if (c.estado === 'pendiente') {
       await supabase.from('contratos')
@@ -92,6 +97,8 @@ export default function FirmarContrato() {
             style={{ width: '100%', height: 420, border: '1px solid var(--line)', borderRadius: 12, marginBottom: 20 }} />
         ) : null}
 
+        <ListaAnexos anexos={anexos} />
+
         <div className="signed-block">
           <div className="lbl">Tu firma</div>
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -122,6 +129,8 @@ export default function FirmarContrato() {
           <div className="contract-paper">{contrato.contenido || 'Este contrato no tiene contenido cargado.'}</div>
         )}
 
+        <ListaAnexos anexos={anexos} />
+
         <label style={{ marginTop: 0 }}>Tu firma</label>
         <div className="sign-box">
           <SignatureCanvas
@@ -140,5 +149,20 @@ export default function FirmarContrato() {
         </button>
       </main>
     </>
+  );
+}
+
+function ListaAnexos({ anexos }) {
+  if (!anexos || anexos.length === 0) return null;
+  return (
+    <div style={{ marginBottom: 20 }}>
+      <label style={{ marginTop: 0 }}>Anexos ({anexos.length})</label>
+      {anexos.map((a) => (
+        <a key={a.id} href={a.url} target="_blank" rel="noreferrer"
+          className="btn btn-ghost btn-sm" style={{ marginRight: 8, marginBottom: 8, display: 'inline-flex' }}>
+          📎 {a.nombre}
+        </a>
+      ))}
+    </div>
   );
 }
