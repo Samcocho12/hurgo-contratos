@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { supabase } from '../../lib/supabaseClient';
 import AppHeader from '../../components/AppHeader';
+import JefeTabs from '../../components/JefeTabs';
 import { normalizarPlaca, formatearPlaca } from '../../lib/placa';
 
 const ESTADO_LABEL = { pendiente: 'Pendiente', visto: 'Visto', firmado: 'Firmado', rechazado: 'Rechazado' };
@@ -193,12 +194,7 @@ export default function JefeDashboard() {
         <h1 className="page-title">Contratos enviados</h1>
         <p className="page-sub">Gestiona los contratos que has enviado a tus conductores.</p>
 
-        <div className="tab-row">
-          <span className="tab-item tab-active">Contratos</span>
-          <span className="tab-item" onClick={() => router.push('/jefe/conductores')}>Conductores</span>
-          <span className="tab-item" onClick={() => router.push('/jefe/firmados')}>Firmados</span>
-          <span className="tab-item" onClick={() => router.push('/jefe/usuarios')}>Usuarios</span>
-        </div>
+        <JefeTabs activo="/jefe" />
 
         <div className="stat-row">
           <div className="stat-chip stat-chip-navy">

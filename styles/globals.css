@@ -218,3 +218,246 @@ input[type=file]{padding:10px;background:var(--card);}
 .stat-chip-amber .num, .stat-chip-amber .lbl{color:var(--navy-deep);}
 .stat-chip-green{background:linear-gradient(160deg, #2A9463 0%, var(--road-green) 100%);}
 .stat-chip-green .num, .stat-chip-green .lbl{color:#fff;}
+
+/* ============================================================
+   Módulo de guías de envío + rastreo público
+   ============================================================ */
+
+/* pestañas como botones (accesibles) y con scroll si no caben */
+.tab-row{overflow-x:auto;scrollbar-width:none;}
+.tab-row::-webkit-scrollbar{display:none;}
+button.tab-item{border:none;background:none;flex:1 0 auto;padding:9px 8px;}
+.tab-item:focus-visible, .filtro:focus-visible, .btn:focus-visible, .link-btn:focus-visible, .back-link:focus-visible{
+  outline:2px solid var(--amber);outline-offset:2px;
+}
+
+/* acceso a guías en el panel del conductor */
+.guias-acceso{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  background:var(--card);border-radius:12px;padding:15px 16px;margin-bottom:22px;
+  border-left:5px solid var(--amber);text-decoration:none;color:var(--ink);
+  box-shadow:0 4px 14px rgba(6,10,40,0.25);
+}
+.guias-acceso-titulo{display:block;font-family:var(--font-display);font-size:17px;font-weight:600;text-transform:uppercase;color:var(--navy);}
+.guias-acceso-sub{display:block;font-size:13px;color:var(--ink-soft);margin-top:2px;}
+.guias-acceso-flecha{font-size:30px;line-height:1;color:var(--amber-deep);font-weight:600;}
+.guias-acceso-bloqueado{border-left-color:var(--steel);background:rgba(255,255,255,0.88);}
+.guias-acceso-bloqueado .guias-acceso-titulo{color:var(--steel);}
+
+/* formularios por secciones */
+.form-seccion{border:none;padding:0;margin:0 0 26px;}
+.form-seccion legend{
+  font-family:var(--font-display);font-size:18px;font-weight:600;text-transform:uppercase;
+  color:var(--amber);padding:0 0 10px;margin-bottom:4px;width:100%;
+  border-bottom:1px solid rgba(255,255,255,0.18);
+}
+.form-seccion label:first-of-type{margin-top:12px;}
+.form-fila{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.error-claro{background:#fff;padding:10px 12px;border-radius:8px;}
+.aviso-ok{font-family:var(--font-mono);font-size:12px;color:var(--road-green);margin-top:10px;font-weight:600;}
+.aviso-banda{
+  background:var(--road-green-soft);border:1.5px solid var(--road-green);color:var(--road-green);
+  border-radius:10px;padding:12px 14px;font-size:14px;font-weight:600;margin-bottom:18px;
+}
+
+/* número de guía */
+.guia-num{font-family:var(--font-mono);font-weight:700;font-size:22px;letter-spacing:1px;color:var(--navy);}
+.guia-num-sm{font-family:var(--font-mono);font-weight:700;font-size:12px;letter-spacing:1px;color:var(--steel);}
+.guia-cabecera{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+.guia-trayecto{font-size:13px;color:var(--ink-soft);margin:0 0 6px;}
+.guia-trayecto span{color:var(--amber-deep);font-weight:700;padding:0 2px;}
+.guia-trayecto-lg{font-family:var(--font-display);font-size:19px;text-transform:uppercase;color:var(--ink);margin:6px 0 4px;}
+.plate-sm{font-size:10px;padding:1px 6px;border-width:1.5px;}
+
+/* estados de guía */
+.status-g-creada{background:var(--line);color:var(--navy);}
+.status-g-recogiendo{background:var(--purple);color:#fff;}
+.status-g-en_camino{background:var(--amber);color:var(--navy-deep);}
+.status-g-entregada{background:var(--road-green);color:#fff;}
+.status-g-cancelada{background:transparent;color:var(--carbon-soft);border:1.5px solid var(--carbon-soft);}
+.card-guia-creada{border-left-color:var(--steel);}
+.card-guia-recogiendo{border-left-color:var(--purple);}
+.card-guia-en_camino{border-left-color:var(--amber);}
+.card-guia-entregada{border-left-color:var(--road-green);}
+.card-guia-cancelada{border-left-color:var(--carbon-soft);opacity:0.8;}
+.stat-chip-alert{background:linear-gradient(160deg, #D65151 0%, var(--alert) 100%);}
+.stat-chip-alert .num, .stat-chip-alert .lbl{color:#fff;}
+
+/* filtros del coordinador */
+.filtros{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:16px;scrollbar-width:none;}
+.filtros::-webkit-scrollbar{display:none;}
+.filtro{
+  flex:0 0 auto;border:1.5px solid rgba(255,255,255,0.35);background:transparent;color:#fff;
+  font-family:var(--font-body);font-size:13px;font-weight:600;padding:7px 13px;border-radius:20px;cursor:pointer;
+}
+.filtro-activo{background:var(--amber);border-color:var(--amber);color:var(--navy-deep);}
+
+/* paneles de detalle */
+.panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 16px;margin:0 0 16px;box-shadow:0 4px 14px rgba(22,33,92,0.09);}
+.panel-titulo{font-family:var(--font-display);font-size:17px;font-weight:600;text-transform:uppercase;color:var(--navy);margin:0 0 12px;}
+.panel-texto{font-size:14px;color:var(--ink-soft);margin:-4px 0 4px;line-height:1.5;}
+.seccion-titulo{font-family:var(--font-display);font-size:17px;font-weight:600;text-transform:uppercase;color:var(--navy);margin:26px 0 12px;}
+.btn-whatsapp{background:#1FA855;color:#fff;margin-top:14px;}
+.btn-whatsapp:hover{filter:brightness(1.06);}
+.datos{margin:0;}
+.datos-bloque{padding:10px 0;border-top:1px solid var(--line);}
+.datos-bloque:first-child{border-top:none;padding-top:0;}
+.datos dt{font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:var(--ink-soft);margin-bottom:3px;}
+.datos dd{margin:0;font-size:14px;line-height:1.55;}
+.datos a{color:var(--navy);font-weight:600;}
+
+/* ---------- la carretera de progreso ---------- */
+.ruta{
+  --alto-via:12px;
+  list-style:none;margin:22px 0 22px;padding:0;
+  display:flex;position:relative;
+}
+.ruta-via, .ruta-avance{
+  position:absolute;top:calc(18px - var(--alto-via) / 2);left:calc(50% / var(--pasos));height:var(--alto-via);border-radius:3px;
+}
+.ruta-via{
+  right:calc(50% / var(--pasos));background:#D9DEEA;
+  background-image:repeating-linear-gradient(90deg, #fff 0 10px, transparent 10px 20px);
+  background-size:100% 2px;background-repeat:no-repeat;background-position:0 50%;
+}
+.ruta-avance{
+  width:calc(var(--avance) * (100% - 100% / var(--pasos)));
+  background-color:var(--carbon);
+  background-image:repeating-linear-gradient(90deg, var(--plate-yellow) 0 10px, transparent 10px 20px);
+  background-size:100% 2px;background-repeat:no-repeat;background-position:0 50%;
+  transform-origin:left center;
+  animation:ruta-pavimentar .9s cubic-bezier(.3,.7,.2,1) both .15s;
+}
+@keyframes ruta-pavimentar{from{transform:scaleX(0);}to{transform:scaleX(1);}}
+.ruta-paso{flex:1;display:flex;flex-direction:column;align-items:center;position:relative;min-width:0;}
+.ruta-punto{
+  width:22px;height:22px;margin-top:7px;border-radius:50%;
+  background:#fff;border:2px solid #C4CBDB;
+  display:flex;align-items:center;justify-content:center;color:var(--navy-deep);
+}
+.ruta-paso.hecho .ruta-punto{background:var(--amber);border-color:var(--carbon);}
+.ruta-paso.actual .ruta-punto{
+  width:36px;height:36px;margin-top:0;background:var(--navy);border:3px solid var(--amber);color:#fff;
+  box-shadow:0 3px 10px rgba(22,33,92,0.35);
+}
+.ruta-etiqueta{
+  margin-top:7px;font-size:11px;line-height:1.2;text-align:center;color:var(--ink-soft);
+  padding:0 2px;
+}
+.ruta-paso.hecho .ruta-etiqueta{color:var(--ink);}
+.ruta-paso.actual .ruta-etiqueta{color:var(--navy);font-weight:700;}
+.ruta-cancelada{filter:grayscale(1);opacity:0.55;}
+.dashboard-bg .ruta-etiqueta{color:rgba(255,255,255,0.7);}
+.dashboard-bg .ruta-paso.hecho .ruta-etiqueta,.dashboard-bg .ruta-paso.actual .ruta-etiqueta{color:#fff;}
+
+@media (prefers-reduced-motion: reduce){
+  .ruta-avance{animation:none;}
+  .btn{transition:none;}
+}
+
+/* historial */
+.historial{list-style:none;margin:0 0 16px;padding:0 0 0 20px;position:relative;}
+.historial::before{content:'';position:absolute;left:5px;top:6px;bottom:6px;width:2px;background:var(--line);}
+.historial-item{position:relative;padding:0 0 18px;}
+.historial-item::before{
+  content:'';position:absolute;left:-20px;top:4px;width:12px;height:12px;border-radius:50%;
+  background:#fff;border:2px solid var(--steel);
+}
+.historial-item:first-child::before{background:var(--navy);border-color:var(--navy);}
+.historial-entregada::before{border-color:var(--road-green) !important;}
+.historial-item.historial-entregada:first-child::before{background:var(--road-green);}
+.historial time{display:block;font-size:12px;color:var(--ink-soft);}
+.historial-estado{font-weight:700;font-size:15px;color:var(--ink);margin-top:1px;}
+.historial-lugar{font-size:13px;color:var(--carbon-soft);}
+.historial-nota{font-size:14px;margin:4px 0 0;line-height:1.5;color:var(--ink);}
+.historial-autor{font-size:11px;color:var(--steel);margin-top:3px;}
+
+/* ---------- rastreo público ---------- */
+.rastreo{min-height:100vh;display:flex;flex-direction:column;background:var(--bg);}
+.rastreo-header{background:#fff;border-bottom:3px solid var(--amber);}
+.rastreo-header-inner{
+  max-width:560px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  text-decoration:none;
+}
+.rastreo-header-txt{font-size:13px;font-weight:600;color:var(--navy);}
+.rastreo-main{flex:1;width:100%;max-width:560px;margin:0 auto;padding:26px 18px 40px;}
+.rastreo-footer{text-align:center;font-size:12px;color:var(--ink-soft);padding:18px;}
+.rastreo-footer a{color:var(--navy);}
+
+.rastreo-portada{padding:28px 0 10px;}
+.rastreo-portada h1{
+  font-family:var(--font-display);font-weight:700;text-transform:uppercase;color:var(--navy);
+  font-size:clamp(34px, 9vw, 48px);line-height:1;margin:0 0 12px;letter-spacing:0.3px;
+}
+.rastreo-portada p{font-size:16px;color:var(--ink-soft);margin:0 0 26px;line-height:1.5;max-width:40ch;}
+
+.buscador label{margin-top:0;}
+.buscador-fila{display:flex;gap:8px;}
+.buscador-fila input{font-family:var(--font-mono);font-weight:700;letter-spacing:1px;text-transform:uppercase;font-size:17px;}
+.buscador-fila .btn{width:auto;margin-top:0;flex:0 0 auto;padding:0 22px;}
+.buscador-compacto{margin-bottom:22px;}
+.buscador-compacto .buscador-fila input{font-size:15px;padding:11px 12px;}
+
+.rastreo-cargando{color:var(--ink-soft);font-size:14px;}
+.rastreo-error{background:var(--card);border:1px solid var(--line);border-left:5px solid var(--alert);border-radius:12px;padding:18px;}
+.rastreo-error h1{font-family:var(--font-display);font-size:20px;text-transform:uppercase;color:var(--ink);margin:0 0 6px;}
+.rastreo-error p{margin:0;color:var(--ink-soft);font-size:14px;line-height:1.5;}
+
+.guia-publica{
+  background:var(--card);border-radius:16px;overflow:hidden;
+  box-shadow:0 10px 30px rgba(22,33,92,0.13);padding:20px 18px 18px;
+  border-top:6px solid var(--navy);
+}
+.guia-publica-en_camino{border-top-color:var(--amber);}
+.guia-publica-entregada{border-top-color:var(--road-green);}
+.guia-publica-cancelada{border-top-color:var(--carbon-soft);}
+.guia-publica-top{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+.guia-publica-lbl{display:block;font-size:12px;color:var(--ink-soft);}
+.guia-publica-estado{
+  font-family:var(--font-display);font-weight:700;text-transform:uppercase;
+  font-size:clamp(32px, 8vw, 42px);line-height:1;color:var(--navy);margin:16px 0 6px;
+}
+.guia-publica-entregada .guia-publica-estado{color:var(--road-green);}
+.guia-publica-cancelada .guia-publica-estado{color:var(--carbon-soft);}
+.guia-publica-desc{margin:0 0 16px;font-size:15px;line-height:1.5;color:var(--carbon-soft);}
+.guia-publica-trayecto{
+  display:flex;align-items:center;gap:12px;padding:14px 0 4px;border-top:1px solid var(--line);
+}
+.guia-publica-ciudad{display:block;font-family:var(--font-display);font-weight:600;font-size:20px;text-transform:uppercase;color:var(--ink);line-height:1.15;}
+.guia-publica-flecha{flex:1;height:2px;background:repeating-linear-gradient(90deg, var(--amber) 0 8px, transparent 8px 14px);min-width:24px;}
+.guia-publica-datos{
+  display:grid;grid-template-columns:repeat(auto-fit, minmax(120px, 1fr));gap:12px;margin:4px 0 0;
+  padding-top:14px;border-top:1px solid var(--line);
+}
+.guia-publica-datos dt{font-size:12px;color:var(--ink-soft);}
+.guia-publica-datos dd{margin:2px 0 0;font-weight:600;font-size:15px;}
+.rastreo-historial{margin-top:10px;}
+
+/* botones de estado del conductor */
+.estado-botones{display:grid;gap:10px;}
+.estado-btn{
+  display:flex;align-items:center;gap:14px;width:100%;text-align:left;cursor:pointer;
+  padding:14px 16px;border-radius:10px;border:2px solid var(--navy);background:#fff;color:var(--navy);
+  font-family:var(--font-display);font-size:19px;font-weight:600;text-transform:uppercase;letter-spacing:0.3px;
+}
+.estado-btn-num{
+  flex:0 0 auto;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:var(--navy);color:#fff;font-family:var(--font-body);font-size:15px;font-weight:700;
+}
+.estado-btn:not(:disabled):hover{background:var(--navy-soft);}
+.estado-btn-elegido{background:var(--amber) !important;border-color:var(--amber);color:var(--navy-deep);}
+.estado-btn-hecho{border-color:var(--road-green);color:var(--road-green);background:var(--road-green-soft);cursor:default;}
+.estado-btn-hecho .estado-btn-num{background:var(--road-green);}
+.estado-btn:disabled:not(.estado-btn-hecho){opacity:0.5;cursor:wait;}
+.estado-confirmar{margin-top:16px;padding-top:14px;border-top:1px dashed var(--line);}
+.estado-confirmar label:first-of-type{margin-top:0;}
+
+/* selector de ruta actual */
+.ruta-actual{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:12px;padding:12px 14px;margin-bottom:18px;}
+.ruta-actual label{margin-top:0;}
+.ruta-elegida{
+  background:#fff;border-radius:10px;padding:12px 14px;margin-top:10px;
+  font-family:var(--font-display);font-size:17px;font-weight:600;text-transform:uppercase;color:var(--navy);line-height:1.25;
+}
+.ruta-elegida span{color:var(--amber-deep);padding:0 4px;}
+.card-inactiva{opacity:0.6;}

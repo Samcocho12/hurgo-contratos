@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { supabase } from '../../lib/supabaseClient';
 import AppHeader from '../../components/AppHeader';
+import JefeTabs from '../../components/JefeTabs';
 import { normalizarPlaca, formatearPlaca } from '../../lib/placa';
 
 export default function ConductoresRegistrados() {
@@ -121,12 +122,7 @@ export default function ConductoresRegistrados() {
         <h1 className="page-title">Conductores registrados</h1>
         <p className="page-sub">Todos los conductores y vehículos que tienes registrados.</p>
 
-        <div className="tab-row">
-          <span className="tab-item" onClick={() => router.push('/jefe')}>Contratos</span>
-          <span className="tab-item tab-active">Conductores</span>
-          <span className="tab-item" onClick={() => router.push('/jefe/firmados')}>Firmados</span>
-          <span className="tab-item" onClick={() => router.push('/jefe/usuarios')}>Usuarios</span>
-        </div>
+        <JefeTabs activo="/jefe/conductores" />
 
         {conductores.length === 0 && (
           <div className="empty">

@@ -12,6 +12,7 @@ export default function ConductorDashboard() {
   const [nombre, setNombre] = useState('');
   const [placa, setPlaca] = useState('');
   const [contratos, setContratos] = useState([]);
+  const [cargado, setCargado] = useState(false);
 
   useEffect(() => {
     const rol = localStorage.getItem('hurgo_rol');
@@ -30,6 +31,7 @@ export default function ConductorDashboard() {
       .eq('conductor_placa', placaConductor)
       .order('creado_en', { ascending: false });
     setContratos(data || []);
+    setCargado(true);
   }
 
   function salir() {
@@ -66,6 +68,23 @@ export default function ConductorDashboard() {
             <div className="lbl">Firmados</div>
           </div>
         </div>
+
+        {cargado && (firmados > 0 ? (
+          <Link href="/conductor/guias" className="guias-acceso">
+            <span>
+              <span className="guias-acceso-titulo">Mis guías de envío</span>
+              <span className="guias-acceso-sub">Crea guías y actualiza el estado de tus entregas</span>
+            </span>
+            <span className="guias-acceso-flecha" aria-hidden="true">›</span>
+          </Link>
+        ) : (
+          <div className="guias-acceso guias-acceso-bloqueado">
+            <span>
+              <span className="guias-acceso-titulo">Guías de envío</span>
+              <span className="guias-acceso-sub">Se activan cuando firmes tu contrato.</span>
+            </span>
+          </div>
+        ))}
 
         {contratos.length === 0 && (
           <div className="empty">

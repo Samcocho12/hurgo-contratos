@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { supabase } from '../../lib/supabaseClient';
 import AppHeader from '../../components/AppHeader';
+import JefeTabs from '../../components/JefeTabs';
 
 export default function UsuariosCoordinadores() {
   const router = useRouter();
@@ -110,11 +111,7 @@ export default function UsuariosCoordinadores() {
         <h1 className="page-title">Usuarios coordinadores</h1>
         <p className="page-sub">Quiénes tienen acceso para enviar y gestionar contratos.</p>
 
-        <div className="tab-row">
-          <span className="tab-item" onClick={() => router.push('/jefe')}>Contratos</span>
-          <span className="tab-item" onClick={() => router.push('/jefe/conductores')}>Conductores</span>
-          <span className="tab-item" onClick={() => router.push('/jefe/firmados')}>Firmados</span>
-        </div>
+        <JefeTabs activo="/jefe/usuarios" />
 
         {usuarios.map((u) => (
           <div className="card" key={u.id}>

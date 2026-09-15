@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { supabase } from '../../lib/supabaseClient';
 import AppHeader from '../../components/AppHeader';
+import JefeTabs from '../../components/JefeTabs';
 import { normalizarPlaca, formatearPlaca } from '../../lib/placa';
 
 export default function ContratosFirmados() {
@@ -54,12 +55,7 @@ export default function ContratosFirmados() {
         <h1 className="page-title">Contratos firmados</h1>
         <p className="page-sub">Archivo de contratos ya firmados por tus conductores.</p>
 
-        <div className="tab-row">
-          <span className="tab-item" onClick={() => router.push('/jefe')}>Contratos</span>
-          <span className="tab-item" onClick={() => router.push('/jefe/conductores')}>Conductores</span>
-          <span className="tab-item tab-active">Firmados</span>
-          <span className="tab-item" onClick={() => router.push('/jefe/usuarios')}>Usuarios</span>
-        </div>
+        <JefeTabs activo="/jefe/firmados" />
 
         {contratos.length === 0 && (
           <div className="empty">
