@@ -73,7 +73,7 @@ export default function ConductorDashboard() {
           <Link href="/conductor/guias" className="guias-acceso">
             <span>
               <span className="guias-acceso-titulo">Mis guías de envío</span>
-              <span className="guias-acceso-sub">Crea guías y actualiza el estado de tus entregas</span>
+              <span className="guias-acceso-sub">Marca el estado de las guías que te asignaron</span>
             </span>
             <span className="guias-acceso-flecha" aria-hidden="true">›</span>
           </Link>

@@ -37,7 +37,7 @@ export default function GuiaJefe() {
   async function cargar() {
     const { data, error: err } = await supabase
       .from('guias')
-      .select('*, guia_eventos(*), rutas(nombre, origen_ciudad, destino_ciudad)')
+      .select('*, guia_eventos(*), contratos(id, titulo, pdf_firmado_url)')
       .eq('numero', numero)
       .maybeSingle();
     if (err) { setError(err.message); return; }
@@ -89,6 +89,11 @@ export default function GuiaJefe() {
 
         {guia && (
           <>
+            {router.query.nueva && (
+              <div className="aviso-banda" role="status">
+                Guía creada y asignada a {guia.conductor_nombre || 'el conductor'}. Compártela con el destinatario.
+              </div>
+            )}
             <div className="guia-cabecera">
               <div className="guia-num">{formatearNumeroGuia(guia.numero)}</div>
               <span className={`status status-g-${guia.estado}`}>{ESTADOS_GUIA[guia.estado]?.label}</span>
@@ -99,14 +104,21 @@ export default function GuiaJefe() {
 
             <GuiaRuta eventos={eventos} estado={guia.estado} />
 
+            <CompartirGuia numero={guia.numero} destinatarioNombre={guia.destinatario_nombre}
+              destinatarioTelefono={guia.destinatario_telefono} />
+
             <InfoGuia guia={guia} mostrarConductor />
+
+            {guia.contratos?.pdf_firmado_url && (
+              <a className="btn btn-ghost" style={{ marginTop: -4, marginBottom: 16 }}
+                href={guia.contratos.pdf_firmado_url} target="_blank" rel="noreferrer">
+                Ver contrato firmado de esta ruta
+              </a>
+            )}
 
             {!ESTADOS_FINALES.includes(guia.estado) && (
               <FormEstadoGuia estadoActual={guia.estado} onGuardar={guardarEstado} permitirCancelar />
             )}
-
-            <CompartirGuia numero={guia.numero} destinatarioNombre={guia.destinatario_nombre}
-              destinatarioTelefono={guia.destinatario_telefono} />
 
             <a className="btn btn-ghost" href={`/rastreo/${guia.numero}`} target="_blank" rel="noreferrer">
               Ver como la ve el cliente

@@ -4,14 +4,13 @@ import AppHeader from '../../../components/AppHeader';
 import GuiaRuta from '../../../components/GuiaRuta';
 import GuiaHistorial from '../../../components/GuiaHistorial';
 import FormEstadoGuia from '../../../components/FormEstadoGuia';
-import CompartirGuia from '../../../components/CompartirGuia';
 import InfoGuia from '../../../components/InfoGuia';
 import { llamarApiConductor } from '../../../lib/apiConductor';
 import { ESTADOS_FINALES, ESTADOS_GUIA, formatearNumeroGuia } from '../../../lib/guias';
 
 export default function GuiaConductor() {
   const router = useRouter();
-  const { numero, nueva } = router.query;
+  const { numero } = router.query;
   const [guia, setGuia] = useState(null);
   const [eventos, setEventos] = useState([]);
   const [error, setError] = useState('');
@@ -56,11 +55,6 @@ export default function GuiaConductor() {
 
         {guia && (
           <>
-            {nueva && (
-              <div className="aviso-banda" role="status">
-                Guía creada. Compártela con el destinatario para que siga su envío.
-              </div>
-            )}
 
             <div className="guia-cabecera">
               <div className="guia-num">{formatearNumeroGuia(guia.numero)}</div>
@@ -81,9 +75,6 @@ export default function GuiaConductor() {
             ) : (
               <FormEstadoGuia estadoActual={guia.estado} onGuardar={guardarEstado} />
             )}
-
-            <CompartirGuia numero={guia.numero} destinatarioNombre={guia.destinatario_nombre}
-              destinatarioTelefono={guia.destinatario_telefono} />
 
             <InfoGuia guia={guia} />
 

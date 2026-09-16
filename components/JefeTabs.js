@@ -3,7 +3,6 @@ import { useRouter } from 'next/router';
 const TABS = [
   { href: '/jefe', label: 'Contratos' },
   { href: '/jefe/guias', label: 'Guías' },
-  { href: '/jefe/rutas', label: 'Rutas' },
   { href: '/jefe/conductores', label: 'Conductores' },
   { href: '/jefe/firmados', label: 'Firmados' },
   { href: '/jefe/usuarios', label: 'Usuarios' },

@@ -15,7 +15,7 @@ export default async function handler(req, res) {
 
   const { data: guia, error } = await supabaseAdmin
     .from('guias')
-    .select('*, guia_eventos(*), rutas(nombre, origen_ciudad, destino_ciudad)')
+    .select('*, guia_eventos(*)')
     .eq('numero', numero)
     .eq('conductor_placa', conductor.placa)
     .maybeSingle();

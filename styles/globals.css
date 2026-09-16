@@ -461,3 +461,4 @@ button.tab-item{border:none;background:none;flex:1 0 auto;padding:9px 8px;}
 }
 .ruta-elegida span{color:var(--amber-deep);padding:0 4px;}
 .card-inactiva{opacity:0.6;}
+.ruta-elegida-meta{font-family:var(--font-body);font-size:12px;font-weight:400;text-transform:none;color:var(--ink-soft);margin-top:4px;}

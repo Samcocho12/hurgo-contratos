@@ -9,7 +9,7 @@ export default function InfoGuia({ guia, mostrarConductor = false }) {
       <dl className="datos">
         <div className="datos-bloque">
           <dt>Ruta</dt>
-          <dd>{guia.rutas ? nombreRuta(guia.rutas) : `${guia.origen_ciudad} › ${guia.destino_ciudad}`}</dd>
+          <dd>{nombreRuta(guia) || 'Sin contrato asociado'}<br />{guia.origen_ciudad} › {guia.destino_ciudad}</dd>
         </div>
         <div className="datos-bloque">
           <dt>Remitente</dt>

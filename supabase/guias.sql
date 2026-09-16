@@ -1,9 +1,12 @@
 -- ============================================================
--- Hurgo Contratos · Módulo de RUTAS + GUÍAS DE ENVÍO + rastreo público
+-- Hurgo Contratos · Módulo de GUÍAS DE ENVÍO + rastreo público
 -- Ejecutar en: Supabase > SQL Editor > New query
--- Se puede ejecutar aunque ya hayas corrido la versión anterior:
+-- Se puede ejecutar aunque ya hayas corrido una versión anterior:
 -- actualiza tablas y estados sin perder guías.
 -- Requiere que ya existan las tablas "contratos" y "conductores".
+--
+-- La RUTA de cada guía es el CONTRATO FIRMADO del conductor
+-- (el título del contrato indica la ruta). No hay tabla de rutas aparte.
 --
 -- Estados de una guía:
 --   creada (automático) -> recogiendo -> en_camino -> entregada
@@ -14,33 +17,23 @@
 --  * Conductores y clientes -> solo a través de /api/* (service_role).
 -- ============================================================
 
--- ---------- rutas (las crea coordinación) ----------
-create table if not exists public.rutas (
-  id uuid primary key default gen_random_uuid(),
-  nombre text,
-  origen_ciudad text not null,
-  destino_ciudad text not null,
-  activa boolean not null default true,
-  creado_en timestamptz not null default now()
-);
-
 -- ---------- guías ----------
 create table if not exists public.guias (
   id uuid primary key default gen_random_uuid(),
   numero text not null unique check (numero ~ '^HG[0-9]{10}$'),
   conductor_placa text not null,
   conductor_nombre text,
-  contrato_id uuid references public.contratos(id) on delete set null,
-  ruta_id uuid references public.rutas(id) on delete set null,
+  contrato_id uuid references public.contratos(id) on delete set null,   -- la ruta
+  ruta_nombre text,                    -- copia del título del contrato (se conserva si el contrato se borra)
 
   remitente_nombre text not null,
   remitente_telefono text,
-  origen_ciudad text not null,        -- copia de la ruta al momento de crear la guía
+  origen_ciudad text not null,
   origen_direccion text,
 
   destinatario_nombre text not null,
   destinatario_telefono text not null,
-  destino_ciudad text not null,       -- copia de la ruta al momento de crear la guía
+  destino_ciudad text not null,
   destino_direccion text not null,
 
   contenido text not null,
@@ -56,12 +49,17 @@ create table if not exists public.guias (
   entregado_en timestamptz
 );
 
--- Si la tabla venía de la versión anterior, le agrega la ruta.
-alter table public.guias add column if not exists ruta_id uuid references public.rutas(id) on delete set null;
+-- Actualización desde versiones anteriores: la ruta pasa a ser el contrato.
+alter table public.guias add column if not exists ruta_nombre text;
+update public.guias g set ruta_nombre = c.titulo
+  from public.contratos c
+  where g.contrato_id = c.id and g.ruta_nombre is null;
+alter table public.guias drop column if exists ruta_id;
+drop table if exists public.rutas;
 
 create index if not exists guias_placa_idx on public.guias (conductor_placa, creado_en desc);
 create index if not exists guias_estado_idx on public.guias (estado);
-create index if not exists guias_ruta_idx on public.guias (ruta_id);
+create index if not exists guias_contrato_idx on public.guias (contrato_id);
 
 create table if not exists public.guia_eventos (
   id uuid primary key default gen_random_uuid(),
@@ -124,14 +122,8 @@ create trigger guia_eventos_aplicar
   for each row execute function public.guia_aplicar_evento();
 
 -- ---------- seguridad ----------
-alter table public.rutas enable row level security;
 alter table public.guias enable row level security;
 alter table public.guia_eventos enable row level security;
-
-drop policy if exists "coordinadores gestionan rutas" on public.rutas;
-create policy "coordinadores gestionan rutas"
-  on public.rutas for all to authenticated
-  using (true) with check (true);
 
 drop policy if exists "coordinadores gestionan guias" on public.guias;
 create policy "coordinadores gestionan guias"
