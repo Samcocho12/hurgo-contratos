@@ -1,0 +1,20 @@
+FUENTES DE MARCA - HURGO TRANSPORTE LOGÍSTICA
+
+Coloca aquí los archivos .woff2 con estos nombres EXACTOS:
+
+  Títulos (DIN 2014 Narrow)
+    DIN2014Narrow-Regular.woff2
+    DIN2014Narrow-Demi.woff2
+    DIN2014Narrow-Bold.woff2
+
+  Texto (Gilroy)
+    Gilroy-Regular.woff2
+    Gilroy-Medium.woff2
+    Gilroy-SemiBold.woff2
+    Gilroy-Bold.woff2
+
+Si tienes .otf o .ttf, conviértelos a .woff2 (por ejemplo con
+https://cloudconvert.com/otf-to-woff2) y renómbralos así.
+
+Importante: la licencia de las fuentes debe permitir uso WEB.
+Mientras falten, la app usa Barlow Semi Condensed y Plus Jakarta Sans.
