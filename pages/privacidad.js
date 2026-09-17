@@ -17,7 +17,7 @@ export default function Privacidad() {
 
         <h1 className="page-title" style={{ textAlign: 'center' }}>Política de Privacidad</h1>
         <p className="page-sub" style={{ textAlign: 'center' }}>
-          Aplicación &quot;Hurgo Transporte — Contratos&quot; · Última actualización: 14 de septiembre de 2026
+          Aplicación &quot;Hurgo Transporte — Contratos&quot; · Última actualización: 17 de septiembre de 2026
         </p>
 
         <div className="card" style={{ marginTop: 28, lineHeight: 1.8 }}>
@@ -27,7 +27,7 @@ export default function Privacidad() {
             HURGO TRANSPORTE LOGÍSTICA (en adelante, &quot;Hurgo&quot;) es la empresa responsable del
             tratamiento de los datos personales recolectados a través de esta aplicación.
             Para cualquier solicitud relacionada con tus datos puedes escribir a{' '}
-            <strong>CORREO_DE_CONTACTO@DOMINIO.COM</strong>.
+            <strong>gerencia@hurgotransporte.com.co</strong>.
           </p>
 
           <h2 className="card-title" style={{ marginTop: 24 }}>2. Alcance</h2>
@@ -89,7 +89,7 @@ export default function Privacidad() {
           <p>
             Como titular de los datos puedes conocer, actualizar, rectificar y solicitar la
             supresión de tu información, así como revocar el consentimiento otorgado. Para
-            ejercer estos derechos escribe a <strong>CORREO_DE_CONTACTO@DOMINIO.COM</strong>.
+            ejercer estos derechos escribe a <strong>gerencia@hurgotransporte.com.co</strong>.
             Responderemos la solicitud dentro de los plazos establecidos por la ley.
           </p>
           <p>
@@ -107,9 +107,9 @@ export default function Privacidad() {
           <h2 className="card-title" style={{ marginTop: 24 }}>10. Contacto</h2>
           <p>
             HURGO TRANSPORTE LOGÍSTICA<br />
-            Correo: <strong>CORREO_DE_CONTACTO@DOMINIO.COM</strong><br />
-            Teléfono: <strong>TELÉFONO_DE_CONTACTO</strong><br />
-            Dirección: <strong>DIRECCIÓN_DE_LA_EMPRESA</strong>
+            Correo: <strong>gerencia@hurgotransporte.com.co</strong><br />
+            Teléfono: <strong>3005966863</strong><br />
+            Dirección: <strong>CALLE 4 1 96 SAN SEBASTIAN B</strong>
           </p>
 
         </div>
