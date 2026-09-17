@@ -237,6 +237,9 @@ export default function Login() {
           <button className="link-btn" onClick={() => router.push('/rastreo')}>Rastrear un envío</button>
         </div>
         <div className="login-coord-access" style={{ marginTop: 8, paddingTop: 0, borderTop: 'none' }}>
+          <button className="link-btn" onClick={() => router.push('/')}>Volver al inicio</button>
+        </div>
+        <div className="login-coord-access" style={{ marginTop: 8, paddingTop: 0, borderTop: 'none' }}>
           <button className="link-btn" onClick={() => setMostrarCoordLogin(true)}>Acceso coordinador</button>
         </div>
       </div>

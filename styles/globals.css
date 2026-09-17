@@ -462,3 +462,137 @@ button.tab-item{border:none;background:none;flex:1 0 auto;padding:9px 8px;}
 .ruta-elegida span{color:var(--amber-deep);padding:0 4px;}
 .card-inactiva{opacity:0.6;}
 .ruta-elegida-meta{font-family:var(--font-body);font-size:12px;font-weight:400;text-transform:none;color:var(--ink-soft);margin-top:4px;}
+
+/* ============================================================
+   Página de inicio (presentación antes del login)
+   ============================================================ */
+.landing{background:var(--bg);min-height:100vh;visibility:hidden;}
+.landing-lista{visibility:visible;}
+.landing-contenedor{max-width:980px;margin:0 auto;padding:0 22px;}
+
+.landing-hero{
+  position:relative;color:#fff;overflow:hidden;
+  background:
+    linear-gradient(180deg, rgba(13,20,64,0.78) 0%, rgba(13,20,64,0.9) 55%, var(--navy-deep) 100%),
+    url('/fondo-camiones.jpg') center 35% / cover no-repeat;
+}
+.landing-hero-inner{max-width:980px;margin:0 auto;padding:34px 22px 84px;}
+.landing-marca{display:flex;align-items:center;gap:14px;}
+.landing-isotipo{width:74px;height:auto;display:block;}
+.landing-marca-txt{display:flex;flex-direction:column;gap:4px;padding-left:14px;border-left:2px solid rgba(255,255,255,0.28);}
+.landing-marca-nombre{font-family:var(--font-display);font-weight:600;font-size:21px;line-height:1;letter-spacing:0.8px;text-transform:uppercase;color:#fff;}
+.landing-marca-sub{font-family:var(--font-body);font-weight:600;font-size:11px;line-height:1;letter-spacing:6px;text-transform:uppercase;color:var(--amber);}
+
+.landing-titulo{
+  font-family:var(--font-display);font-weight:700;text-transform:uppercase;color:#fff;
+  font-size:clamp(44px, 11vw, 88px);line-height:0.98;letter-spacing:0.3px;
+  margin:64px 0 20px;max-width:11ch;
+}
+.landing-lead{font-size:clamp(16px, 2.2vw, 19px);line-height:1.55;color:rgba(255,255,255,0.86);max-width:46ch;margin:0 0 30px;}
+.landing-acciones{display:flex;flex-wrap:wrap;gap:12px;}
+.landing-btn{width:auto;margin-top:0;padding:15px 28px;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;min-height:50px;}
+.landing-btn-claro{background:transparent;color:#fff;border:2px solid rgba(255,255,255,0.6);}
+.landing-btn-claro:hover{background:rgba(255,255,255,0.1);}
+
+/* entrada del hero: un solo movimiento */
+.landing-lista .landing-titulo, .landing-lista .landing-lead, .landing-lista .landing-acciones{
+  animation:landing-entrar .7s cubic-bezier(.2,.7,.2,1) both;
+}
+.landing-lista .landing-lead{animation-delay:.08s;}
+.landing-lista .landing-acciones{animation-delay:.16s;}
+@keyframes landing-entrar{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;}}
+
+/* franja de carretera al pie del hero */
+.landing-via{
+  position:absolute;left:0;right:0;bottom:0;height:22px;background:var(--carbon);
+  background-image:repeating-linear-gradient(90deg, var(--plate-yellow) 0 34px, transparent 34px 68px);
+  background-size:100% 3px;background-repeat:no-repeat;background-position:0 50%;
+}
+
+.landing-seccion{padding:64px 0;}
+.landing-h2{
+  font-family:var(--font-display);font-weight:700;text-transform:uppercase;color:var(--navy);
+  font-size:clamp(28px, 5vw, 38px);line-height:1.05;margin:0 0 22px;
+}
+.landing-h2-claro{color:#fff;}
+
+.landing-quienes{display:grid;gap:8px;}
+.landing-texto p{font-size:17px;line-height:1.7;color:var(--carbon-soft);margin:0 0 14px;max-width:62ch;}
+.landing-texto p:first-child{font-size:20px;line-height:1.55;color:var(--ink);}
+
+.landing-seccion-app{background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
+.landing-perfiles{display:grid;gap:0;}
+.landing-perfil{
+  display:grid;grid-template-columns:52px 1fr;column-gap:16px;align-items:start;
+  padding:22px 0;border-top:1px solid var(--line);
+}
+.landing-perfil:first-child{border-top:none;padding-top:4px;}
+.landing-perfil-icono{
+  grid-row:span 2;width:52px;height:52px;border-radius:14px;background:var(--navy);color:var(--amber);
+  display:flex;align-items:center;justify-content:center;
+}
+.landing-perfil h3{font-family:var(--font-display);font-weight:600;font-size:22px;text-transform:uppercase;color:var(--ink);margin:2px 0 8px;}
+.landing-perfil ul{margin:0;padding:0 0 0 18px;}
+.landing-perfil li{font-size:16px;line-height:1.55;color:var(--carbon-soft);margin-bottom:4px;}
+
+/* ---- la carretera de "Cómo funciona" (elemento protagonista) ---- */
+.landing-seccion-ruta{background:var(--navy-deep);color:#fff;}
+.landing-ruta{
+  list-style:none;margin:10px 0 0;padding:0 0 0 0;position:relative;
+  display:grid;gap:30px;
+}
+.landing-ruta::before{
+  content:'';position:absolute;left:17px;top:8px;bottom:8px;width:20px;border-radius:4px;
+  background-color:var(--carbon);
+  background-image:repeating-linear-gradient(180deg, var(--plate-yellow) 0 18px, transparent 18px 36px);
+  background-size:3px 100%;background-repeat:no-repeat;background-position:50% 0;
+}
+.landing-parada{display:grid;grid-template-columns:54px 1fr;column-gap:16px;align-items:start;align-content:start;position:relative;}
+.landing-parada-num{
+  width:54px;height:54px;border-radius:50%;background:var(--amber);color:var(--navy-deep);
+  border:4px solid var(--navy-deep);box-sizing:border-box;position:relative;z-index:1;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-display);font-weight:700;font-size:22px;
+}
+.landing-parada h3{font-family:var(--font-display);font-weight:600;font-size:22px;text-transform:uppercase;margin:12px 0 4px;color:#fff;}
+.landing-parada p{margin:0;font-size:16px;line-height:1.55;color:rgba(255,255,255,0.78);max-width:40ch;}
+
+.landing-cierre{display:grid;gap:40px;}
+.landing-cierre > div{display:flex;flex-direction:column;align-items:flex-start;}
+.landing-cierre .landing-btn{margin-top:auto;}
+.landing-cierre p{font-size:16px;color:var(--carbon-soft);margin:-10px 0 18px;line-height:1.5;}
+
+.landing-footer{background:var(--navy);color:#fff;padding:34px 0 40px;border-top:4px solid var(--amber);}
+.landing-footer-inner{display:grid;gap:22px;}
+.landing-marca-sm .landing-isotipo{width:54px;}
+.landing-marca-sm .landing-marca-nombre{font-size:17px;}
+.landing-contacto{font-style:normal;display:flex;flex-wrap:wrap;gap:8px 20px;font-size:15px;color:rgba(255,255,255,0.85);}
+.landing-contacto a, .landing-footer-links a{color:#fff;text-decoration:underline;text-underline-offset:3px;}
+.landing-footer-links{display:flex;flex-wrap:wrap;gap:10px 24px;font-size:14px;}
+.landing a:focus-visible{outline:2px solid var(--amber);outline-offset:3px;}
+
+@media (min-width: 760px){
+  .landing-hero-inner{padding:40px 22px 120px;}
+  .landing-titulo{margin-top:96px;max-width:14ch;}
+  .landing-quienes{grid-template-columns:280px 1fr;gap:40px;}
+  .landing-perfiles{grid-template-columns:repeat(3, minmax(0, 1fr));gap:32px;}
+  .landing-perfil{grid-template-columns:1fr;border-top:none;border-left:1px solid var(--line);padding:0 0 0 24px;}
+  .landing-perfil:first-child{border-left:none;padding-left:0;padding-top:0;}
+  .landing-perfil-icono{grid-row:auto;margin-bottom:14px;}
+
+  /* en escritorio la carretera va horizontal */
+  .landing-ruta{grid-template-columns:repeat(4, minmax(0, 1fr));gap:24px;margin-top:20px;}
+  .landing-ruta::before{
+    left:0;right:0;top:17px;bottom:auto;width:auto;height:20px;
+    background-image:repeating-linear-gradient(90deg, var(--plate-yellow) 0 18px, transparent 18px 36px);
+    background-size:100% 3px;background-position:0 50%;
+  }
+  .landing-parada{grid-template-columns:1fr;}
+  .landing-parada h3{margin-top:18px;}
+  .landing-cierre{grid-template-columns:1fr 1fr;}
+  .landing-footer-inner{grid-template-columns:auto 1fr auto;align-items:center;}
+}
+
+@media (prefers-reduced-motion: reduce){
+  .landing-lista .landing-titulo, .landing-lista .landing-lead, .landing-lista .landing-acciones{animation:none;}
+}
