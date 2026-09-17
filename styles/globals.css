@@ -1,4 +1,23 @@
-@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap');
+/* Fuentes de marca: DIN 2014 Narrow (títulos) y Gilroy (texto).
+   Son comerciales: coloca los .woff2 con licencia web en public/fonts/ (ver LEEME.txt).
+   Mientras no estén, se usan Barlow Semi Condensed y Plus Jakarta Sans. */
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap');
+
+@font-face{font-family:'DIN 2014 Narrow';font-weight:400;font-style:normal;font-display:swap;
+  src:local('DIN 2014 Narrow'),local('DIN2014Narrow-Regular'),url('/fonts/DIN2014Narrow-Regular.woff2') format('woff2');}
+@font-face{font-family:'DIN 2014 Narrow';font-weight:600;font-style:normal;font-display:swap;
+  src:local('DIN 2014 Narrow Demi'),local('DIN2014Narrow-Demi'),url('/fonts/DIN2014Narrow-Demi.woff2') format('woff2');}
+@font-face{font-family:'DIN 2014 Narrow';font-weight:700;font-style:normal;font-display:swap;
+  src:local('DIN 2014 Narrow Bold'),local('DIN2014Narrow-Bold'),url('/fonts/DIN2014Narrow-Bold.woff2') format('woff2');}
+
+@font-face{font-family:'Gilroy';font-weight:400;font-style:normal;font-display:swap;
+  src:local('Gilroy Regular'),local('Gilroy-Regular'),url('/fonts/Gilroy-Regular.woff2') format('woff2');}
+@font-face{font-family:'Gilroy';font-weight:500;font-style:normal;font-display:swap;
+  src:local('Gilroy Medium'),local('Gilroy-Medium'),url('/fonts/Gilroy-Medium.woff2') format('woff2');}
+@font-face{font-family:'Gilroy';font-weight:600;font-style:normal;font-display:swap;
+  src:local('Gilroy SemiBold'),local('Gilroy-SemiBold'),url('/fonts/Gilroy-SemiBold.woff2') format('woff2');}
+@font-face{font-family:'Gilroy';font-weight:700;font-style:normal;font-display:swap;
+  src:local('Gilroy Bold'),local('Gilroy-Bold'),url('/fonts/Gilroy-Bold.woff2') format('woff2');}
 
 /* ============================================================
    Hurgo Transporte Logística — sistema de diseño
@@ -29,8 +48,8 @@
   --ink: #1B1D22;
   --ink-soft: #656C7E;
 
-  --font-display: 'Oswald', sans-serif;
-  --font-body: 'IBM Plex Sans', sans-serif;
+  --font-display: 'DIN 2014 Narrow', 'Barlow Semi Condensed', 'Arial Narrow', sans-serif;
+  --font-body: 'Gilroy', 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 }
 
