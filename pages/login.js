@@ -113,9 +113,18 @@ export default function Login() {
   if (mostrarCoordLogin) {
     return (
       <div className="login-screen">
+        <header className="login-hero">
+          <div className="login-marca">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/isotipo-hurgo-claro.svg" alt="Hurgo Transporte Logística" className="login-isotipo" />
+            <span className="login-marca-txt">
+              <span className="login-marca-nombre">Hurgo Transporte</span>
+              <span className="login-marca-sub">Logística</span>
+            </span>
+          </div>
+        </header>
+      
         <div className="login-wrap">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.png" alt="Hurgo Transporte Logística" className="login-logo" />
           <h1>Acceso coordinador</h1>
           <p>Ingresa con tu correo y contraseña</p>
 
@@ -155,9 +164,18 @@ export default function Login() {
   if (pedirRegistro) {
     return (
       <div className="login-screen">
+        <header className="login-hero">
+          <div className="login-marca">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/isotipo-hurgo-claro.svg" alt="Hurgo Transporte Logística" className="login-isotipo" />
+            <span className="login-marca-txt">
+              <span className="login-marca-nombre">Hurgo Transporte</span>
+              <span className="login-marca-sub">Logística</span>
+            </span>
+          </div>
+        </header>
+      
         <div className="login-wrap">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.png" alt="Hurgo Transporte Logística" className="login-logo" />
           <h1>Completa tu registro</h1>
           <p>Como es tu primera vez con la placa {formatearMostrar(placaConductor)}, necesitamos estos datos.</p>
 
@@ -181,7 +199,7 @@ export default function Login() {
               />
 
               {errorRegistro && <div className="error">{errorRegistro}</div>}
-              <button className="btn btn-stamp" disabled={cargandoConductor}>
+              <button className="btn btn-primary" disabled={cargandoConductor}>
                 {cargandoConductor ? 'Guardando...' : 'Terminar registro y continuar'}
               </button>
             </form>
@@ -197,9 +215,19 @@ export default function Login() {
 
   return (
     <div className="login-screen">
+      <header className="login-hero">
+        <div className="login-marca">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/isotipo-hurgo-claro.svg" alt="Hurgo Transporte Logística" className="login-isotipo" />
+          <span className="login-marca-txt">
+            <span className="login-marca-nombre">Hurgo Transporte</span>
+            <span className="login-marca-sub">Logística</span>
+          </span>
+        </div>
+      </header>
+    
       <div className="login-wrap">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo.png" alt="Hurgo Transporte Logística" className="login-logo" />
+        <p className="login-saludo">¡Hola, bienvenido!</p>
         <h1>Ingreso de conductor</h1>
         <p>Escribe tu nombre y la placa de tu vehículo</p>
 
@@ -224,23 +252,17 @@ export default function Login() {
             />
 
             {error && <div className="error">{error}</div>}
-            <button className="btn btn-stamp" disabled={cargandoConductor}>
+            <button className="btn btn-primary" disabled={cargandoConductor}>
               {cargandoConductor ? 'Verificando...' : 'Ver mis contratos'}
             </button>
           </form>
         </div>
 
         <div className="login-coord-access">
-          <button className="link-btn" onClick={() => router.push('/instalar')}>¿Cómo agrego esta app a mi celular?</button>
-        </div>
-        <div className="login-coord-access" style={{ marginTop: 8, paddingTop: 0, borderTop: 'none' }}>
           <button className="link-btn" onClick={() => router.push('/rastreo')}>Rastrear un envío</button>
-        </div>
-        <div className="login-coord-access" style={{ marginTop: 8, paddingTop: 0, borderTop: 'none' }}>
-          <button className="link-btn" onClick={() => router.push('/')}>Volver al inicio</button>
-        </div>
-        <div className="login-coord-access" style={{ marginTop: 8, paddingTop: 0, borderTop: 'none' }}>
           <button className="link-btn" onClick={() => setMostrarCoordLogin(true)}>Acceso coordinador</button>
+          <button className="link-btn" onClick={() => router.push('/instalar')}>¿Cómo agrego esta app a mi celular?</button>
+          <button className="link-btn" onClick={() => router.push('/')}>Volver al inicio</button>
         </div>
       </div>
     </div>

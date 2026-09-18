@@ -136,7 +136,7 @@ export default function FirmarContrato() {
           <SignatureCanvas
             ref={sigPadRef}
             penColor="#16215C"
-            canvasProps={{ className: 'sig-canvas', width: 400, height: 180 }}
+            canvasProps={{ className: 'sig-canvas' }}
           />
         </div>
         <div className="sign-tools">
