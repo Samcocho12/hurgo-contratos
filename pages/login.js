@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { normalizarPlaca } from '../lib/placa';
 import { supabase } from '../lib/supabaseClient';
@@ -21,6 +21,11 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [errorCoord, setErrorCoord] = useState('');
   const [cargandoCoord, setCargandoCoord] = useState(false);
+
+  // /login?coordinador=1 abre directamente el acceso de coordinación
+  useEffect(() => {
+    if (router.isReady && router.query.coordinador) setMostrarCoordLogin(true);
+  }, [router.isReady, router.query.coordinador]);
 
   function entrarYRedirigir(placaLimpia) {
     localStorage.setItem('hurgo_rol', 'conductor');
@@ -114,14 +119,8 @@ export default function Login() {
     return (
       <div className="login-screen">
         <header className="login-hero">
-          <div className="login-marca">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/isotipo-hurgo-claro.svg" alt="Hurgo Transporte Logística" className="login-isotipo" />
-            <span className="login-marca-txt">
-              <span className="login-marca-nombre">Hurgo Transporte</span>
-              <span className="login-marca-sub">Logística</span>
-            </span>
-          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logotipo-hurgo-blanco.svg" alt="Hurgo Transporte Logística" className="login-logotipo" />
         </header>
       
         <div className="login-wrap">
@@ -165,14 +164,8 @@ export default function Login() {
     return (
       <div className="login-screen">
         <header className="login-hero">
-          <div className="login-marca">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/isotipo-hurgo-claro.svg" alt="Hurgo Transporte Logística" className="login-isotipo" />
-            <span className="login-marca-txt">
-              <span className="login-marca-nombre">Hurgo Transporte</span>
-              <span className="login-marca-sub">Logística</span>
-            </span>
-          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logotipo-hurgo-blanco.svg" alt="Hurgo Transporte Logística" className="login-logotipo" />
         </header>
       
         <div className="login-wrap">
@@ -216,14 +209,8 @@ export default function Login() {
   return (
     <div className="login-screen">
       <header className="login-hero">
-        <div className="login-marca">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/isotipo-hurgo-claro.svg" alt="Hurgo Transporte Logística" className="login-isotipo" />
-          <span className="login-marca-txt">
-            <span className="login-marca-nombre">Hurgo Transporte</span>
-            <span className="login-marca-sub">Logística</span>
-          </span>
-        </div>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logotipo-hurgo-blanco.svg" alt="Hurgo Transporte Logística" className="login-logotipo" />
       </header>
     
       <div className="login-wrap">

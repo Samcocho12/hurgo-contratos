@@ -12,11 +12,7 @@ export default function RastreoMarco({ titulo, children }) {
         <Link href="/rastreo" className="rastreo-header-inner">
           <span className="app-header-brand">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/isotipo-hurgo-claro.svg" alt="Hurgo Transporte Logística" className="app-header-logo" />
-            <span className="app-header-txt">
-              <span className="app-header-nombre">Hurgo Transporte</span>
-              <span className="app-header-sub">Logística</span>
-            </span>
+            <img src="/logotipo-hurgo-blanco.svg" alt="Hurgo Transporte Logística" className="app-header-logo" />
           </span>
           <span className="rastreo-header-txt">Rastreo de envíos</span>
         </Link>

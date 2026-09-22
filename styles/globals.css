@@ -1,8 +1,10 @@
 /* Fuentes de marca: DIN 2014 Narrow (títulos) y Gilroy (texto).
    Son comerciales: coloca los .woff2 con licencia web en public/fonts/ (ver LEEME.txt).
    Mientras no estén, se usan Barlow Semi Condensed y Plus Jakarta Sans. */
-@import url('https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@300;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap');
 
+@font-face{font-family:'DIN 2014 Narrow';font-weight:300;font-style:normal;font-display:swap;
+  src:local('DIN 2014 Narrow Light'),local('DIN2014Narrow-Light'),url('/fonts/DIN2014Narrow-Light.woff2') format('woff2');}
 @font-face{font-family:'DIN 2014 Narrow';font-weight:400;font-style:normal;font-display:swap;
   src:local('DIN 2014 Narrow'),local('DIN2014Narrow-Regular'),url('/fonts/DIN2014Narrow-Regular.woff2') format('woff2');}
 @font-face{font-family:'DIN 2014 Narrow';font-weight:600;font-style:normal;font-display:swap;
@@ -69,7 +71,7 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:v
   box-shadow:0 2px 10px rgba(6,10,40,0.2);
 }
 .app-header-brand{display:flex;align-items:center;gap:11px;}
-.app-header-logo{height:30px;width:auto;display:block;}
+.app-header-logo{height:34px;width:auto;display:block;}
 .app-header-txt{display:flex;flex-direction:column;gap:3px;padding-left:11px;border-left:2px solid rgba(255,255,255,0.28);}
 .app-header-nombre{font-family:var(--font-display);font-weight:600;font-size:15px;line-height:1;letter-spacing:0.6px;text-transform:uppercase;color:#fff;}
 .app-header-sub{font-family:var(--font-body);font-weight:600;font-size:8px;line-height:1;letter-spacing:4px;text-transform:uppercase;color:var(--amber);}
@@ -138,11 +140,11 @@ input[type=file]{padding:12px;background:var(--campo);}
 }
 .login-hero{
   width:100%;padding:52px 24px 104px;display:flex;justify-content:center;
-  background-image:linear-gradient(180deg, rgba(13,20,64,0.86) 0%, rgba(22,33,92,0.88) 100%), url('/fondo-camiones.jpg');
-  background-size:cover;background-position:center 40%;
+  background-image:linear-gradient(180deg, rgba(34,50,122,0.88) 0%, rgba(38,47,105,0.9) 100%), url('/fondo-carretera.jpg');
+  background-size:cover;background-position:center 62%;
 }
 .login-marca{display:flex;align-items:center;gap:14px;}
-.login-isotipo{width:76px;height:auto;display:block;}
+.login-logotipo{width:min(250px, 64vw);height:auto;display:block;}
 .login-marca-txt{display:flex;flex-direction:column;gap:4px;padding-left:14px;border-left:2px solid rgba(255,255,255,0.28);}
 .login-marca-nombre{font-family:var(--font-display);font-weight:600;font-size:22px;line-height:1;letter-spacing:0.8px;text-transform:uppercase;color:#fff;}
 .login-marca-sub{font-family:var(--font-body);font-weight:600;font-size:11px;line-height:1;letter-spacing:6px;text-transform:uppercase;color:var(--amber);}
@@ -152,7 +154,7 @@ input[type=file]{padding:12px;background:var(--campo);}
   background:#fff;border-radius:26px;padding:36px 26px 30px;
   box-shadow:0 22px 50px rgba(6,10,40,0.18);
 }
-.login-saludo{font-family:var(--font-body);font-size:22px;font-weight:700;color:var(--amber);margin:0 0 14px;}
+.login-wrap .login-saludo{font-family:var(--font-display);font-size:32px;font-weight:500;line-height:1.1;color:var(--amber);margin:0 0 18px;}
 .login-wrap h1{font-family:var(--font-display);font-size:30px;font-weight:700;margin:0 0 8px;color:var(--navy);text-transform:uppercase;letter-spacing:0.4px;line-height:1.05;}
 .login-wrap p{color:var(--ink-soft);font-size:15.5px;line-height:1.45;margin:0;}
 .login-form{text-align:left;margin-top:26px;}
@@ -485,135 +487,138 @@ button.tab-item{border:none;background:none;flex:1 0 auto;padding:9px 8px;}
 .ruta-elegida-meta{font-family:var(--font-body);font-size:12px;font-weight:400;text-transform:none;color:var(--ink-soft);margin-top:4px;}
 
 /* ============================================================
-   Página de inicio (presentación antes del login)
+   Página de inicio (según diseño "Página principal app Hurgo")
    ============================================================ */
-.landing{background:var(--bg);min-height:100vh;visibility:hidden;}
-.landing-lista{visibility:visible;}
-.landing-contenedor{max-width:980px;margin:0 auto;padding:0 22px;}
+.inicio{background:#fff;min-height:100vh;color:var(--ink);}
+.inicio-contenedor{max-width:1040px;margin:0 auto;padding:0 26px;}
 
-.landing-hero{
-  position:relative;color:#fff;overflow:hidden;
+/* héroe: carretera + azul, esquinas inferiores redondeadas */
+.inicio-hero{
+  color:#fff;border-radius:0 0 44px 44px;overflow:hidden;
   background:
-    linear-gradient(180deg, rgba(13,20,64,0.78) 0%, rgba(13,20,64,0.9) 55%, var(--navy-deep) 100%),
-    url('/fondo-camiones.jpg') center 35% / cover no-repeat;
+    linear-gradient(180deg, rgba(34,50,122,0.88) 0%, rgba(38,47,105,0.9) 100%),
+    url('/fondo-carretera.jpg') center 62% / cover no-repeat;
 }
-.landing-hero-inner{max-width:980px;margin:0 auto;padding:34px 22px 84px;}
-.landing-marca{display:flex;align-items:center;gap:14px;}
-.landing-isotipo{width:74px;height:auto;display:block;}
-.landing-marca-txt{display:flex;flex-direction:column;gap:4px;padding-left:14px;border-left:2px solid rgba(255,255,255,0.28);}
-.landing-marca-nombre{font-family:var(--font-display);font-weight:600;font-size:21px;line-height:1;letter-spacing:0.8px;text-transform:uppercase;color:#fff;}
-.landing-marca-sub{font-family:var(--font-body);font-weight:600;font-size:11px;line-height:1;letter-spacing:6px;text-transform:uppercase;color:var(--amber);}
+.inicio-hero .inicio-contenedor{padding-top:40px;padding-bottom:84px;}
+.inicio-logo{width:min(250px, 62vw);height:auto;display:block;}
+.inicio-titulo{
+  margin:88px 0 22px;font-family:var(--font-display);text-transform:uppercase;
+  font-size:clamp(30px, 8.6vw, 76px);line-height:1.04;letter-spacing:0.2px;
+}
+.inicio-titulo-fuerte{display:block;font-weight:700;}
+.inicio-titulo-fino{display:block;font-weight:300;}
+.inicio-ambar{color:var(--amber);}
+.inicio-lead{font-size:clamp(17px, 2.4vw, 20px);line-height:1.5;margin:0 0 42px;max-width:30ch;color:rgba(255,255,255,0.94);}
+.inicio-acciones{display:flex;flex-wrap:wrap;gap:12px;}
+.inicio-btn{
+  display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:0 24px;
+  border-radius:999px;font-family:var(--font-body);font-weight:700;font-size:15.5px;cursor:pointer;white-space:nowrap;
+  text-decoration:none;transition:filter .12s ease, background .12s ease;
+}
+.inicio-btn-lleno{background:var(--amber);color:var(--navy-deep);border:2px solid var(--amber);min-width:122px;}
+.inicio-btn-lleno:hover{filter:brightness(1.06);}
+.inicio-btn-borde{background:transparent;color:#fff;border:2px solid var(--amber);}
+.inicio-btn-borde:hover{background:rgba(242,169,59,0.12);}
+.inicio-lead, .inicio-acciones{animation:inicio-entrar .7s cubic-bezier(.2,.7,.2,1) both;}
+.inicio-lead{animation-delay:.08s;}
+.inicio-acciones{animation-delay:.16s;}
+.inicio-titulo{animation:inicio-entrar .7s cubic-bezier(.2,.7,.2,1) both;}
+@keyframes inicio-entrar{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;}}
 
-.landing-titulo{
-  font-family:var(--font-display);font-weight:700;text-transform:uppercase;color:#fff;
-  font-size:clamp(44px, 11vw, 88px);line-height:0.98;letter-spacing:0.3px;
-  margin:64px 0 20px;max-width:11ch;
+/* quiénes somos / por qué la app */
+.inicio-intro{display:grid;gap:22px;padding-top:56px;padding-bottom:20px;}
+.inicio-nota{background:#F7F2F0;border-radius:30px;padding:28px 26px 30px;}
+.inicio-nota h2{
+  display:flex;align-items:center;gap:12px;margin:0 0 14px;
+  font-family:var(--font-display);font-weight:500;font-size:24px;color:var(--navy);
 }
-.landing-lead{font-size:clamp(16px, 2.2vw, 19px);line-height:1.55;color:rgba(255,255,255,0.86);max-width:46ch;margin:0 0 30px;}
-.landing-acciones{display:flex;flex-wrap:wrap;gap:12px;}
-.landing-btn{width:auto;margin-top:0;padding:15px 28px;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;min-height:50px;}
-.landing-btn-claro{background:transparent;color:#fff;border:2px solid rgba(255,255,255,0.6);}
-.landing-btn-claro:hover{background:rgba(255,255,255,0.1);}
+.inicio-nota-icono{
+  flex:0 0 auto;width:24px;height:24px;border-radius:7px;background:var(--navy);
+  display:inline-flex;align-items:center;justify-content:center;
+}
+.inicio-nota p{margin:0 0 0 36px;font-size:15.5px;line-height:1.6;color:var(--carbon-soft);}
 
-/* entrada del hero: un solo movimiento */
-.landing-lista .landing-titulo, .landing-lista .landing-lead, .landing-lista .landing-acciones{
-  animation:landing-entrar .7s cubic-bezier(.2,.7,.2,1) both;
+/* qué puedes hacer */
+.inicio-perfiles-sec{padding-top:64px;padding-bottom:70px;}
+.inicio-h2{
+  font-family:var(--font-display);font-weight:700;text-transform:uppercase;text-align:center;
+  font-size:clamp(30px, 8vw, 50px);line-height:1.05;color:var(--navy);margin:0 auto 34px;
 }
-.landing-lista .landing-lead{animation-delay:.08s;}
-.landing-lista .landing-acciones{animation-delay:.16s;}
-@keyframes landing-entrar{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;}}
+.inicio-h2-claro{color:#fff;}
+.inicio-perfiles{display:grid;gap:22px;}
+.inicio-perfil{background:#EAEEF9;border-radius:30px;padding:30px 28px 34px;position:relative;}
+.inicio-perfil-icono{color:var(--amber);display:block;margin-bottom:10px;height:30px;}
+.inicio-perfil-cuerpo{position:relative;}
+.inicio-perfil-cuerpo::before{
+  content:'';position:absolute;left:-28px;top:4px;bottom:4px;width:4px;background:#9FAEE3;
+}
+.inicio-perfil h3{font-family:var(--font-display);font-weight:500;font-size:34px;line-height:1.1;color:#2D2D2D;margin:0 0 12px;}
+.inicio-perfil ul{margin:0;padding:0;list-style:none;display:grid;gap:12px;}
+.inicio-perfil li{position:relative;padding-left:16px;font-size:17px;line-height:1.45;color:var(--carbon-soft);}
+.inicio-perfil li::before{content:'';position:absolute;left:2px;top:.62em;width:5px;height:5px;border-radius:50%;background:currentColor;}
 
-/* franja de carretera al pie del hero */
-.landing-via{
-  position:absolute;left:0;right:0;bottom:0;height:22px;background:var(--carbon);
-  background-image:repeating-linear-gradient(90deg, var(--plate-yellow) 0 34px, transparent 34px 68px);
-  background-size:100% 3px;background-repeat:no-repeat;background-position:0 50%;
+/* cómo funciona */
+.inicio-como{background:#0E143F;border-radius:44px;color:#fff;padding:70px 0 84px;}
+.inicio-pasos{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:40px;position:relative;}
+.inicio-pasos li{display:grid;grid-template-columns:48px 1fr;column-gap:20px;align-items:start;position:relative;}
+.inicio-pasos li:not(:last-child)::after{
+  content:'';position:absolute;left:22px;top:48px;height:calc(100% - 8px);width:3px;background:#9FAEE3;
 }
+.inicio-paso-num{
+  width:48px;height:48px;border-radius:13px;background:var(--amber);color:var(--navy-deep);
+  display:flex;align-items:center;justify-content:center;position:relative;z-index:1;
+  font-family:var(--font-display);font-weight:700;font-size:24px;
+}
+.inicio-pasos h3{font-family:var(--font-display);font-weight:600;font-size:clamp(24px, 6.4vw, 30px);line-height:1.08;margin:2px 0 8px;}
+.inicio-pasos p{margin:0;font-size:16px;line-height:1.5;color:rgba(255,255,255,0.88);max-width:36ch;}
 
-.landing-seccion{padding:64px 0;}
-.landing-h2{
-  font-family:var(--font-display);font-weight:700;text-transform:uppercase;color:var(--navy);
-  font-size:clamp(28px, 5vw, 38px);line-height:1.05;margin:0 0 22px;
+/* bandas de cierre */
+.inicio-banda{background:#F7F2F0;text-align:center;padding:40px 22px 36px;margin-top:64px;}
+.inicio-banda + .inicio-banda{margin-top:56px;}
+.inicio-banda h2{font-family:var(--font-display);font-weight:700;font-size:clamp(30px, 8vw, 40px);line-height:1.05;color:var(--navy-deep);margin:0 0 10px;}
+.inicio-banda p{font-size:17px;line-height:1.45;color:var(--navy-deep);margin:0 0 26px;}
+.inicio-enlace{
+  display:inline-flex;align-items:center;gap:6px;background:none;border:none;cursor:pointer;
+  font-family:var(--font-body);font-weight:700;font-size:17px;color:var(--amber);text-decoration:none;padding:6px 4px;
 }
-.landing-h2-claro{color:#fff;}
+.inicio-enlace:hover{color:var(--amber-deep);}
 
-.landing-quienes{display:grid;gap:8px;}
-.landing-texto p{font-size:17px;line-height:1.7;color:var(--carbon-soft);margin:0 0 14px;max-width:62ch;}
-.landing-texto p:first-child{font-size:20px;line-height:1.55;color:var(--ink);}
-
-.landing-seccion-app{background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
-.landing-perfiles{display:grid;gap:0;}
-.landing-perfil{
-  display:grid;grid-template-columns:52px 1fr;column-gap:16px;align-items:start;
-  padding:22px 0;border-top:1px solid var(--line);
+/* pie: azul con borde ámbar redondeado */
+.inicio-pie{
+  margin-top:70px;background:#293374;color:#fff;border-radius:44px 44px 0 0;
+  box-shadow:0 -8px 0 0 var(--amber);padding:40px 0 44px;
 }
-.landing-perfil:first-child{border-top:none;padding-top:4px;}
-.landing-perfil-icono{
-  grid-row:span 2;width:52px;height:52px;border-radius:14px;background:var(--navy);color:var(--amber);
-  display:flex;align-items:center;justify-content:center;
-}
-.landing-perfil h3{font-family:var(--font-display);font-weight:600;font-size:22px;text-transform:uppercase;color:var(--ink);margin:2px 0 8px;}
-.landing-perfil ul{margin:0;padding:0 0 0 18px;}
-.landing-perfil li{font-size:16px;line-height:1.55;color:var(--carbon-soft);margin-bottom:4px;}
-
-/* ---- la carretera de "Cómo funciona" (elemento protagonista) ---- */
-.landing-seccion-ruta{background:var(--navy-deep);color:#fff;}
-.landing-ruta{
-  list-style:none;margin:10px 0 0;padding:0 0 0 0;position:relative;
-  display:grid;gap:30px;
-}
-.landing-ruta::before{
-  content:'';position:absolute;left:17px;top:8px;bottom:8px;width:20px;border-radius:4px;
-  background-color:var(--carbon);
-  background-image:repeating-linear-gradient(180deg, var(--plate-yellow) 0 18px, transparent 18px 36px);
-  background-size:3px 100%;background-repeat:no-repeat;background-position:50% 0;
-}
-.landing-parada{display:grid;grid-template-columns:54px 1fr;column-gap:16px;align-items:start;align-content:start;position:relative;}
-.landing-parada-num{
-  width:54px;height:54px;border-radius:50%;background:var(--amber);color:var(--navy-deep);
-  border:4px solid var(--navy-deep);box-sizing:border-box;position:relative;z-index:1;
-  display:flex;align-items:center;justify-content:center;
-  font-family:var(--font-display);font-weight:700;font-size:22px;
-}
-.landing-parada h3{font-family:var(--font-display);font-weight:600;font-size:22px;text-transform:uppercase;margin:12px 0 4px;color:#fff;}
-.landing-parada p{margin:0;font-size:16px;line-height:1.55;color:rgba(255,255,255,0.78);max-width:40ch;}
-
-.landing-cierre{display:grid;gap:40px;}
-.landing-cierre > div{display:flex;flex-direction:column;align-items:flex-start;}
-.landing-cierre .landing-btn{margin-top:auto;}
-.landing-cierre p{font-size:16px;color:var(--carbon-soft);margin:-10px 0 18px;line-height:1.5;}
-
-.landing-footer{background:var(--navy);color:#fff;padding:34px 0 40px;border-top:4px solid var(--amber);}
-.landing-footer-inner{display:grid;gap:22px;}
-.landing-marca-sm .landing-isotipo{width:54px;}
-.landing-marca-sm .landing-marca-nombre{font-size:17px;}
-.landing-contacto{font-style:normal;display:flex;flex-wrap:wrap;gap:8px 20px;font-size:15px;color:rgba(255,255,255,0.85);}
-.landing-contacto a, .landing-footer-links a{color:#fff;text-decoration:underline;text-underline-offset:3px;}
-.landing-footer-links{display:flex;flex-wrap:wrap;gap:10px 24px;font-size:14px;}
-.landing a:focus-visible{outline:2px solid var(--amber);outline-offset:3px;}
+.inicio-pie-arriba{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;padding-bottom:22px;border-bottom:1px solid rgba(255,255,255,0.6);}
+.inicio-pie-titulo{display:block;color:var(--amber);font-size:15px;margin-bottom:8px;}
+.inicio-contacto{font-style:normal;display:flex;flex-direction:column;gap:6px;font-size:14.5px;min-width:0;}
+.inicio-contacto a{word-break:break-word;}
+.inicio-contacto > span:not(.inicio-pie-titulo), .inicio-contacto a{display:flex;align-items:center;gap:9px;color:#fff;text-decoration:none;}
+.inicio-contacto svg{color:var(--amber);flex:0 0 auto;}
+.inicio-contacto a:hover{text-decoration:underline;}
+.inicio-redes{text-align:right;}
+.inicio-red{display:inline-flex;width:38px;height:38px;border-radius:50%;background:#fff;color:#293374;align-items:center;justify-content:center;}
+.inicio-pie-abajo{display:flex;justify-content:space-between;align-items:flex-end;gap:22px;flex-wrap:wrap;padding-top:26px;}
+.inicio-pie-logo{width:190px;height:auto;display:block;}
+.inicio-pie-links{display:flex;flex-direction:column;align-items:flex-end;gap:5px;font-size:15px;}
+.inicio-pie-links a{color:#fff;text-decoration:none;}
+.inicio-pie-links a:hover{text-decoration:underline;color:var(--amber);}
+.inicio a:focus-visible, .inicio button:focus-visible{outline:2px solid var(--amber);outline-offset:3px;}
 
 @media (min-width: 760px){
-  .landing-hero-inner{padding:40px 22px 120px;}
-  .landing-titulo{margin-top:96px;max-width:14ch;}
-  .landing-quienes{grid-template-columns:280px 1fr;gap:40px;}
-  .landing-perfiles{grid-template-columns:repeat(3, minmax(0, 1fr));gap:32px;}
-  .landing-perfil{grid-template-columns:1fr;border-top:none;border-left:1px solid var(--line);padding:0 0 0 24px;}
-  .landing-perfil:first-child{border-left:none;padding-left:0;padding-top:0;}
-  .landing-perfil-icono{grid-row:auto;margin-bottom:14px;}
-
-  /* en escritorio la carretera va horizontal */
-  .landing-ruta{grid-template-columns:repeat(4, minmax(0, 1fr));gap:24px;margin-top:20px;}
-  .landing-ruta::before{
-    left:0;right:0;top:17px;bottom:auto;width:auto;height:20px;
-    background-image:repeating-linear-gradient(90deg, var(--plate-yellow) 0 18px, transparent 18px 36px);
-    background-size:100% 3px;background-position:0 50%;
-  }
-  .landing-parada{grid-template-columns:1fr;}
-  .landing-parada h3{margin-top:18px;}
-  .landing-cierre{grid-template-columns:1fr 1fr;}
-  .landing-footer-inner{grid-template-columns:auto 1fr auto;align-items:center;}
+  .inicio-hero .inicio-contenedor{padding-top:48px;padding-bottom:110px;}
+  .inicio-titulo{margin-top:110px;}
+  .inicio-intro{grid-template-columns:1fr 1fr;padding-top:72px;}
+  .inicio-perfiles{grid-template-columns:repeat(3, minmax(0, 1fr));}
+  .inicio-perfil h3{font-size:30px;}
+  .inicio-como{border-radius:56px;margin:0 20px;}
+  .inicio-pasos{grid-template-columns:repeat(2, minmax(0, 1fr));column-gap:50px;}
+  .inicio-pasos li:not(:last-child)::after{display:none;}
 }
-
+@media (max-width: 420px){
+  .inicio-pie-abajo{flex-direction:column;align-items:flex-start;}
+  .inicio-pie-links{align-items:flex-start;}
+  .inicio-redes{text-align:left;}
+}
 @media (prefers-reduced-motion: reduce){
-  .landing-lista .landing-titulo, .landing-lista .landing-lead, .landing-lista .landing-acciones{animation:none;}
+  .inicio-titulo, .inicio-lead, .inicio-acciones{animation:none;}
 }
