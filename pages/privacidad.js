@@ -17,34 +17,37 @@ export default function Privacidad() {
 
         <h1 className="page-title" style={{ textAlign: 'center' }}>Política de Privacidad</h1>
         <p className="page-sub" style={{ textAlign: 'center' }}>
-          Aplicación &quot;Hurgo Transporte — Contratos&quot; · Última actualización: 14 de septiembre de 2026
+          Aplicación &quot;Hurgo Transporte — Contratos&quot; · Última actualización: 21 de septiembre de 2026
         </p>
 
         <div className="card" style={{ marginTop: 28, lineHeight: 1.8 }}>
 
           <h2 className="card-title">1. Responsable del tratamiento</h2>
           <p>
-            HURGO TRANSPORTE LOGÍSTICA (en adelante, &quot;Hurgo&quot;) es la empresa responsable del
+            HURGO TRANSPORTE Y LOGÍSTICA S.A.S., NIT 900958334-1 (en adelante, &quot;Hurgo&quot;), es la empresa responsable del
             tratamiento de los datos personales recolectados a través de esta aplicación.
             Para cualquier solicitud relacionada con tus datos puedes escribir a{' '}
-            <strong>CORREO_DE_CONTACTO@DOMINIO.COM</strong>.
+            <strong>asistentegerencia@hurgotransporte.com.co</strong>.
           </p>
 
           <h2 className="card-title" style={{ marginTop: 24 }}>2. Alcance</h2>
           <p>
-            Esta aplicación es una herramienta interna de uso laboral, destinada exclusivamente
-            al personal y a los conductores vinculados a Hurgo. Permite consultar, revisar y
-            firmar digitalmente contratos y documentos de vinculación. No está dirigida al
-            público general ni a menores de 18 años.
+            La aplicación tiene dos partes. La parte privada es de uso laboral, para el personal
+            de coordinación y los conductores vinculados a Hurgo: permite firmar digitalmente
+            contratos de vinculación y gestionar guías de envío. La parte pública es el rastreo
+            de envíos, donde cualquier persona con un número de guía puede consultar el estado de
+            su envío. La aplicación no está dirigida a menores de 18 años.
           </p>
 
           <h2 className="card-title" style={{ marginTop: 24 }}>3. Datos que recolectamos</h2>
-          <p>Recolectamos únicamente los datos necesarios para la gestión contractual:</p>
+          <p>Recolectamos únicamente los datos necesarios para la gestión contractual y de los envíos:</p>
           <ul style={{ paddingLeft: 20 }}>
             <li><strong>Datos de identificación:</strong> nombre completo y número de documento de identidad.</li>
-            <li><strong>Datos de contacto:</strong> correo electrónico y/o número de teléfono, usados para el acceso a la cuenta.</li>
+            <li><strong>Datos de contacto:</strong> número de celular del conductor.</li>
             <li><strong>Datos laborales:</strong> placa del vehículo asignado y documentos contractuales asociados.</li>
             <li><strong>Firma digital:</strong> la imagen de la firma que el usuario traza dentro de la aplicación para suscribir un contrato.</li>
+            <li><strong>Datos de los envíos:</strong> nombre, teléfono y dirección del remitente y del destinatario, ciudades de origen y destino, descripción del contenido y el nombre de quien recibe. Los registra el personal de coordinación al crear cada guía.</li>
+            <li><strong>Datos de acceso de coordinación:</strong> correo electrónico y contraseña del personal autorizado.</li>
             <li><strong>Datos técnicos:</strong> registros de fecha y hora de acceso y de firma, con fines de trazabilidad y validez del documento.</li>
           </ul>
           <p>
@@ -55,9 +58,11 @@ export default function Privacidad() {
 
           <h2 className="card-title" style={{ marginTop: 24 }}>4. Finalidad del tratamiento</h2>
           <p>
-            Los datos se utilizan exclusivamente para generar, entregar, firmar y conservar los
-            contratos laborales o de prestación de servicios entre Hurgo y sus conductores, así
-            como para autenticar el acceso de cada usuario a su propia información. No vendemos,
+            Los datos se utilizan exclusivamente para generar, firmar y conservar los contratos de
+            vinculación entre Hurgo y sus conductores, para gestionar y entregar los envíos, y para
+            informar al destinatario el estado de su envío. En el rastreo público solo se muestran
+            el estado, las ciudades de origen y destino, las fechas y el nombre abreviado de quien
+            recibe (por ejemplo, &quot;Laura G.&quot;); nunca teléfonos, direcciones ni valores. No vendemos,
             alquilamos ni compartimos datos personales con terceros para fines publicitarios.
           </p>
 
@@ -74,8 +79,9 @@ export default function Privacidad() {
             La información se almacena en servidores de Supabase Inc. y la aplicación se
             distribuye mediante Vercel Inc., proveedores que actúan como encargados del
             tratamiento. Toda la comunicación entre el dispositivo y los servidores viaja
-            cifrada mediante HTTPS/TLS. El acceso está protegido por credenciales individuales
-            y cada usuario solo puede consultar los documentos que le corresponden.
+            cifrada mediante HTTPS/TLS. El personal de coordinación accede con correo y contraseña
+            individuales, y cada conductor accede con su nombre y la placa de su vehículo para
+            consultar únicamente sus propios contratos y guías.
           </p>
 
           <h2 className="card-title" style={{ marginTop: 24 }}>7. Conservación</h2>
@@ -89,12 +95,24 @@ export default function Privacidad() {
           <p>
             Como titular de los datos puedes conocer, actualizar, rectificar y solicitar la
             supresión de tu información, así como revocar el consentimiento otorgado. Para
-            ejercer estos derechos escribe a <strong>CORREO_DE_CONTACTO@DOMINIO.COM</strong>.
+            ejercer estos derechos escribe a <strong>asistentegerencia@hurgotransporte.com.co</strong>.
             Responderemos la solicitud dentro de los plazos establecidos por la ley.
           </p>
           <p>
             Ten en cuenta que la supresión de datos vinculados a un contrato vigente puede estar
             limitada por obligaciones legales de conservación documental.
+          </p>
+
+          <h2 id="eliminar-datos" className="card-title" style={{ marginTop: 24 }}>Eliminar tu cuenta y tus datos</h2>
+          <p>
+            Para eliminar tu registro en la aplicación y los datos asociados, escribe a{' '}
+            <strong>asistentegerencia@hurgotransporte.com.co</strong> con el asunto
+            &quot;Eliminar mis datos&quot;, indicando tu nombre, tu número de cédula y la placa del
+            vehículo. Eliminaremos tu registro de conductor, tu número de celular y tus datos de
+            acceso en un plazo máximo de 15 días hábiles, y te confirmaremos por el mismo medio.
+            Los contratos firmados y sus firmas pueden conservarse durante el tiempo que exige la
+            ley colombiana, como se explica en la sección 7; una vez vencido ese plazo, también se
+            eliminan.
           </p>
 
           <h2 className="card-title" style={{ marginTop: 24 }}>9. Cambios en esta política</h2>
@@ -106,10 +124,10 @@ export default function Privacidad() {
 
           <h2 className="card-title" style={{ marginTop: 24 }}>10. Contacto</h2>
           <p>
-            HURGO TRANSPORTE LOGÍSTICA<br />
-            Correo: <strong>CORREO_DE_CONTACTO@DOMINIO.COM</strong><br />
-            Teléfono: <strong>TELÉFONO_DE_CONTACTO</strong><br />
-            Dirección: <strong>DIRECCIÓN_DE_LA_EMPRESA</strong>
+            HURGO TRANSPORTE Y LOGÍSTICA S.A.S. — NIT 900958334-1<br />
+            Correo: <strong>asistentegerencia@hurgotransporte.com.co</strong><br />
+            Teléfono: <strong>300 596 6863</strong><br />
+            Dirección: <strong>Cl. 24 #3-99 Local 2, Santa Marta, Magdalena</strong>
           </p>
 
         </div>
@@ -117,7 +135,7 @@ export default function Privacidad() {
         <button
           className="btn btn-ghost"
           style={{ marginTop: 24 }}
-          onClick={() => router.push('/login')}
+          onClick={() => router.push('/')}
         >
           Volver
         </button>
