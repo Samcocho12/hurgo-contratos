@@ -1,8 +1,10 @@
 {
   "name": "Hurgo Transporte - Contratos",
+  "id": "/",
+  "categories": ["business", "productivity"],
   "short_name": "Hurgo Contratos",
-  "description": "Firma y gestiona contratos de conductores desde el celular",
-  "start_url": "/login",
+  "description": "Contratos de conductores y guías de envío con rastreo en línea",
+  "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
