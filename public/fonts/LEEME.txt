@@ -3,6 +3,7 @@ FUENTES DE MARCA - HURGO TRANSPORTE LOGÍSTICA
 Coloca aquí los archivos .woff2 con estos nombres EXACTOS:
 
   Títulos (DIN 2014 Narrow)
+    DIN2014Narrow-Light.woff2
     DIN2014Narrow-Regular.woff2
     DIN2014Narrow-Demi.woff2
     DIN2014Narrow-Bold.woff2
