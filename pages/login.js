@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import { normalizarPlaca } from '../lib/placa';
 import { supabase } from '../lib/supabaseClient';
 import { llamarApiConductor } from '../lib/apiConductor';
+import { startAuthentication } from '@simplewebauthn/browser';
 
 export default function Login() {
   const router = useRouter();
@@ -10,6 +11,7 @@ export default function Login() {
   const [placaConductor, setPlacaConductor] = useState('');
   const [error, setError] = useState('');
   const [cargandoConductor, setCargandoConductor] = useState(false);
+  const [usandoHuella, setUsandoHuella] = useState(false);
 
   // paso 2: registro (solo la primera vez que se ve esa placa)
   const [pedirRegistro, setPedirRegistro] = useState(false);
@@ -36,6 +38,56 @@ export default function Login() {
     localStorage.setItem('hurgo_nombre', nombreConductor.trim());
     localStorage.setItem('hurgo_placa', placaLimpia);
     router.push('/conductor');
+  }
+
+  // Ingreso con huella o rostro. Abre sesion FUERTE (habilita firmar).
+  async function entrarConHuella() {
+    setError('');
+    const placaLimpia = normalizarPlaca(placaConductor);
+    if (placaLimpia.length < 5) {
+      setError('Escribe tu placa para usar la huella.');
+      return;
+    }
+
+    setUsandoHuella(true);
+    try {
+      const r1 = await llamarApiConductor('/api/auth/passkey', {
+        method: 'POST',
+        body: JSON.stringify({ accion: 'login-opciones', placa: placaLimpia }),
+      });
+      if (!r1.ok) {
+        if (r1.datos?.sinPasskey) {
+          setError('Esta placa aun no tiene huella registrada. Usa el codigo que te dio tu coordinador.');
+        } else {
+          setError(r1.datos?.error || 'No se pudo iniciar.');
+        }
+        setUsandoHuella(false);
+        return;
+      }
+
+      const respuesta = await startAuthentication({ optionsJSON: r1.datos.opciones });
+
+      const r2 = await llamarApiConductor('/api/auth/passkey', {
+        method: 'POST',
+        body: JSON.stringify({ accion: 'login-verificar', respuesta }),
+      });
+      setUsandoHuella(false);
+
+      if (!r2.ok) { setError(r2.datos?.error || 'No se pudo verificar tu huella.'); return; }
+
+      localStorage.setItem('hurgo_rol', 'conductor');
+      localStorage.setItem('hurgo_placa', placaLimpia);
+      if (r2.datos?.conductor?.nombre) {
+        localStorage.setItem('hurgo_nombre', r2.datos.conductor.nombre);
+      }
+      router.push('/conductor');
+    } catch (err) {
+      setUsandoHuella(false);
+      const msg = String(err?.message || '');
+      setError(/NotAllowed|cancel/i.test(msg)
+        ? 'Cancelaste la huella.'
+        : 'Tu celular no pudo usar la huella. Intenta con tu nombre y placa.');
+    }
   }
 
   async function continuarComoConductor(e) {
@@ -247,8 +299,27 @@ export default function Login() {
             />
 
             {error && <div className="error">{error}</div>}
-            <button className="btn btn-primary" disabled={cargandoConductor}>
+            <button className="btn btn-primary" disabled={cargandoConductor || usandoHuella}>
               {cargandoConductor ? 'Verificando...' : 'Ver mis contratos'}
+            </button>
+
+            <div className="login-divider">o</div>
+
+            <button
+              type="button"
+              className="btn btn-stamp"
+              onClick={entrarConHuella}
+              disabled={usandoHuella || cargandoConductor}
+            >
+              {usandoHuella ? 'Esperando tu huella…' : '👆 Entrar con mi huella'}
+            </button>
+
+            <button
+              type="button"
+              className="link-btn"
+              onClick={() => router.push('/enrolar')}
+            >
+              Tengo un código de activación
             </button>
           </form>
         </div>
