@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { supabase } from '../../lib/supabaseClient';
+import { llamarApiJefe } from '../../lib/apiJefe';
 import AppHeader from '../../components/AppHeader';
 import JefeTabs from '../../components/JefeTabs';
 import { normalizarPlaca, formatearPlaca } from '../../lib/placa';
@@ -16,9 +17,10 @@ export default function ConductoresRegistrados() {
   const [error, setError] = useState('');
   const [cargando, setCargando] = useState(false);
 
-  useEffect(() => {
-    verificarAcceso();
-  }, []);
+  // Codigo recien generado: se muestra una sola vez y no se puede recuperar.
+  const [codigoNuevo, setCodigoNuevo] = useState(null);
+
+  useEffect(() => { verificarAcceso(); }, []);
 
   async function verificarAcceso() {
     const { data } = await supabase.auth.getUser();
@@ -30,11 +32,9 @@ export default function ConductoresRegistrados() {
   }
 
   async function cargar() {
-    const { data } = await supabase
-      .from('conductores')
-      .select('*')
-      .order('creado_en', { ascending: false });
-    setConductores(data || []);
+    const { ok, datos } = await llamarApiJefe('/api/jefe/conductores');
+    if (!ok) { setError(datos.error || ''); return; }
+    setConductores(datos.conductores || []);
   }
 
   async function registrar(e) {
@@ -45,22 +45,30 @@ export default function ConductoresRegistrados() {
     if (placaLimpia.length < 5) { setError('Ingresa la placa completa del vehículo.'); return; }
 
     setCargando(true);
-    const { error: upsertError } = await supabase
-      .from('conductores')
-      .upsert({
-        placa: placaLimpia,
-        nombre: nombre.trim(),
-        cedula: cedula.trim() || null,
-        celular: celular.trim() || null,
-      });
+    const { ok, datos } = await llamarApiJefe('/api/jefe/conductores', {
+      method: 'POST',
+      body: JSON.stringify({ nombre: nombre.trim(), placa: placaLimpia, cedula, celular }),
+    });
     setCargando(false);
 
-    if (upsertError) {
-      setError('No se pudo registrar: ' + upsertError.message);
-      return;
-    }
+    if (!ok) { setError(datos.error || 'No se pudo registrar.'); return; }
+
     setNombre(''); setPlaca(''); setCedula(''); setCelular('');
     setMostrarForm(false);
+    setCodigoNuevo({ placa: datos.placa, codigo: datos.codigo, expira: datos.expira });
+    cargar();
+  }
+
+  async function accionSobre(placaObjetivo, accion, confirmacion) {
+    if (confirmacion && !window.confirm(confirmacion)) return;
+    const { ok, datos } = await llamarApiJefe('/api/jefe/conductores', {
+      method: 'PATCH',
+      body: JSON.stringify({ placa: placaObjetivo, accion }),
+    });
+    if (!ok) { alert(datos.error || 'No se pudo completar la acción.'); return; }
+    if (datos.codigo) {
+      setCodigoNuevo({ placa: placaObjetivo, codigo: datos.codigo, expira: datos.expira });
+    }
     cargar();
   }
 
@@ -69,14 +77,59 @@ export default function ConductoresRegistrados() {
       `¿Eliminar a ${nombreEliminar} (${formatearPlaca(placaEliminar)}) del registro?\n\nEsto no borra los contratos que ya se le enviaron, solo lo quita de la lista de conductores.`
     );
     if (!confirmado) return;
-    const { error: deleteError } = await supabase.from('conductores').delete().eq('placa', placaEliminar);
-    if (deleteError) {
-      alert('No se pudo eliminar: ' + deleteError.message);
-      return;
-    }
+    const { ok, datos } = await llamarApiJefe('/api/jefe/conductores', {
+      method: 'DELETE',
+      body: JSON.stringify({ placa: placaEliminar }),
+    });
+    if (!ok) { alert(datos.error || 'No se pudo eliminar.'); return; }
     cargar();
   }
 
+  // ---------------------------------------------------- Código generado
+  if (codigoNuevo) {
+    const vence = new Date(codigoNuevo.expira).toLocaleString('es-CO', {
+      day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit',
+    });
+    return (
+      <div className="dashboard-bg">
+        <AppHeader />
+        <main className="page">
+          <h1 className="page-title">Código de ingreso</h1>
+          <p className="page-sub">
+            Entrégaselo a {formatearPlaca(codigoNuevo.placa)} en persona o por WhatsApp.
+          </p>
+
+          <div className="card" style={{ textAlign: 'center', padding: '28px 16px' }}>
+            <div className="card-meta">Código de un solo uso</div>
+            <div style={{
+              fontFamily: 'var(--font-mono)', fontSize: 44, fontWeight: 800,
+              letterSpacing: '8px', margin: '14px 0',
+            }}>
+              {codigoNuevo.codigo}
+            </div>
+            <div className="card-meta">Vence el {vence}</div>
+          </div>
+
+          <div className="card" style={{ background: 'rgba(255,196,0,.08)' }}>
+            <strong>Anótalo o mándalo ahora.</strong> Este código no se vuelve a mostrar:
+            en el sistema solo queda guardado de forma cifrada. Si se pierde, genera uno nuevo.
+          </div>
+
+          <button
+            className="btn btn-ghost"
+            onClick={() => navigator.clipboard?.writeText(codigoNuevo.codigo)}
+          >
+            Copiar código
+          </button>
+          <button className="btn btn-stamp" onClick={() => setCodigoNuevo(null)}>
+            Listo, ya lo entregué
+          </button>
+        </main>
+      </div>
+    );
+  }
+
+  // ---------------------------------------------------- Formulario
   if (mostrarForm) {
     return (
       <div className="dashboard-bg">
@@ -84,7 +137,7 @@ export default function ConductoresRegistrados() {
         <main className="page">
           <button className="back-link" onClick={() => setMostrarForm(false)}>← Cancelar</button>
           <h1 className="page-title">Registrar conductor</h1>
-          <p className="page-sub">Agrega un conductor y su vehículo al registro.</p>
+          <p className="page-sub">Al guardar se genera un código de ingreso para entregarle.</p>
           <form onSubmit={registrar}>
             <label style={{ marginTop: 0 }}>Nombre del conductor</label>
             <input value={nombre} onChange={(e) => setNombre(e.target.value)}
@@ -96,17 +149,17 @@ export default function ConductoresRegistrados() {
               style={{ textTransform: 'uppercase', fontFamily: 'var(--font-mono)', letterSpacing: '1.5px', fontWeight: 700 }}
               maxLength={8} />
 
-            <label>Cédula (opcional)</label>
+            <label>Cédula</label>
             <input value={cedula} onChange={(e) => setCedula(e.target.value)}
               placeholder="Ej: 1083012966" inputMode="numeric" />
 
-            <label>Celular (opcional)</label>
+            <label>Celular</label>
             <input value={celular} onChange={(e) => setCelular(e.target.value)}
               placeholder="Ej: 3001234567" type="tel" />
 
             {error && <div className="error">{error}</div>}
             <button className="btn btn-stamp" disabled={cargando}>
-              {cargando ? 'Guardando...' : 'Registrar'}
+              {cargando ? 'Guardando...' : 'Registrar y generar código'}
             </button>
           </form>
         </main>
@@ -114,6 +167,7 @@ export default function ConductoresRegistrados() {
     );
   }
 
+  // ---------------------------------------------------- Lista
   return (
     <div className="dashboard-bg">
       <AppHeader />
@@ -124,6 +178,8 @@ export default function ConductoresRegistrados() {
 
         <JefeTabs activo="/jefe/conductores" />
 
+        {error && <div className="error">{error}</div>}
+
         {conductores.length === 0 && (
           <div className="empty">
             <div className="empty-title">Aún no hay conductores registrados</div>
@@ -131,25 +187,54 @@ export default function ConductoresRegistrados() {
           </div>
         )}
 
-        {conductores.map((c) => (
-          <div className="card" key={c.placa}>
-            <div className="card-row">
-              <div>
-                <span className="plate-badge">{formatearPlaca(c.placa)}</span>
-                <div className="card-title" style={{ marginTop: 8 }}>{c.nombre}</div>
-                <div className="card-meta">
-                  {c.cedula && `C.C. ${c.cedula}`}{c.cedula && c.celular && ' · '}{c.celular && c.celular}
+        {conductores.map((c) => {
+          const bloqueado = c.bloqueadoHasta && new Date(c.bloqueadoHasta) > new Date();
+          return (
+            <div className="card" key={c.placa} style={!c.activo ? { opacity: 0.55 } : undefined}>
+              <div className="card-row">
+                <div>
+                  <span className="plate-badge">{formatearPlaca(c.placa)}</span>
+                  <div className="card-title" style={{ marginTop: 8 }}>{c.nombre}</div>
+                  <div className="card-meta">
+                    {c.cedula && `C.C. ${c.cedula}`}{c.cedula && c.celular && ' · '}{c.celular}
+                  </div>
+                  <div className="card-meta" style={{ marginTop: 6 }}>
+                    {!c.activo && '⛔ Desactivado · '}
+                    {c.enrolado ? '✅ Enrolado' : c.codigoPendiente ? '⏳ Código pendiente' : '⚠️ Sin enrolar'}
+                    {c.dispositivos > 0 && ` · ${c.dispositivos} dispositivo(s)`}
+                    {bloqueado && ' · 🔒 Bloqueado por intentos'}
+                  </div>
                 </div>
-                <div className="card-meta">Registrado el {new Date(c.creado_en).toLocaleDateString('es-CO')}</div>
+              </div>
+
+              <div className="card-foot" style={{ flexWrap: 'wrap', gap: 6 }}>
+                <button className="btn btn-ghost btn-sm"
+                  onClick={() => accionSobre(c.placa, 'codigo')}>
+                  Generar código
+                </button>
+
+                {c.dispositivos > 0 && (
+                  <button className="btn btn-ghost btn-sm"
+                    onClick={() => accionSobre(c.placa, 'revocar_dispositivos',
+                      `¿Desvincular los celulares de ${c.nombre}?\n\nVa a necesitar un código nuevo para volver a entrar.`)}>
+                    Desvincular celulares
+                  </button>
+                )}
+
+                <button className="btn btn-ghost btn-sm"
+                  onClick={() => accionSobre(c.placa, c.activo ? 'desactivar' : 'activar',
+                    c.activo ? `¿Desactivar el acceso de ${c.nombre}?` : null)}>
+                  {c.activo ? 'Desactivar' : 'Reactivar'}
+                </button>
+
+                <button className="btn btn-danger btn-sm"
+                  onClick={() => eliminarConductor(c.placa, c.nombre)}>
+                  Eliminar
+                </button>
               </div>
             </div>
-            <div className="card-foot">
-              <button className="btn btn-danger btn-sm" onClick={() => eliminarConductor(c.placa, c.nombre)}>
-                Eliminar
-              </button>
-            </div>
-          </div>
-        ))}
+          );
+        })}
 
         <button className="fab" onClick={() => setMostrarForm(true)} title="Registrar conductor">+</button>
       </main>
