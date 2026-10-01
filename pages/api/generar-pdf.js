@@ -1,6 +1,8 @@
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import { supabaseAdmin } from '../../lib/supabaseAdmin';
 import { MEDIDAS_BLOQUE, buscarBloqueVinculado, ubicacionRespaldo } from '../../lib/ubicarFirma';
+import { exigirConductor } from '../../lib/sesion';
+import { registrar } from '../../lib/auditoria';
 
 function fechaColombia() {
   return new Date()
@@ -37,9 +39,25 @@ function dibujarTextoAjustado(pagina, texto, { x, y, anchoMax }, font, colorText
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Método no permitido' });
 
+  res.setHeader('Cache-Control', 'no-store');
+
+  // ---- GUARDIA 1: tiene que haber una sesion de conductor valida.
+  // Antes esta ruta era publica: cualquiera podia estampar una firma
+  // en cualquier contrato sin estar logueado.
+  const sesion = await exigirConductor(req, res);
+  if (!sesion) return;
+
   const { contratoId, firmaPng } = req.body;
   if (!contratoId || !firmaPng) {
     return res.status(400).json({ error: 'Falta contratoId o firmaPng' });
+  }
+
+  // La firma tiene que ser una imagen PNG en base64, no cualquier cosa.
+  if (!/^data:image\/png;base64,[A-Za-z0-9+/=]+$/.test(firmaPng)) {
+    return res.status(400).json({ error: 'La firma no tiene un formato valido.' });
+  }
+  if (firmaPng.length > 2_000_000) {
+    return res.status(413).json({ error: 'La firma es demasiado grande.' });
   }
 
   try {
@@ -49,6 +67,21 @@ export default async function handler(req, res) {
       .eq('id', contratoId)
       .single();
     if (fetchError || !contrato) throw new Error('Contrato no encontrado');
+
+    // ---- GUARDIA 2: el contrato tiene que ser de ESTE conductor.
+    if (contrato.conductor_placa !== sesion.placa) {
+      await registrar(req, {
+        actorTipo: 'conductor', actorId: sesion.placa,
+        accion: 'firma_rechazada', objetivo: contratoId,
+        detalle: { motivo: 'el contrato es de otra placa' },
+      });
+      return res.status(403).json({ error: 'Este contrato no te pertenece.' });
+    }
+
+    // ---- GUARDIA 3: un contrato firmado no se vuelve a firmar.
+    if (contrato.estado === 'firmado') {
+      return res.status(409).json({ error: 'Este contrato ya fue firmado.' });
+    }
 
     // Trae la cédula guardada del conductor (vive en la tabla conductores, por placa)
     let cedulaConductor = '';
@@ -182,7 +215,27 @@ export default async function handler(req, res) {
       .from('contratos-firmados')
       .createSignedUrl(rutaArchivo, 60 * 60 * 24 * 365);
 
-    return res.status(200).json({ rutaArchivo: urlFirmada?.signedUrl || rutaArchivo });
+    // ---- El SERVIDOR marca la firma. Antes lo hacia el navegador con la
+    // anon key, asi que cualquiera podia poner un contrato en 'firmado'.
+    const { error: updError } = await supabaseAdmin
+      .from('contratos')
+      .update({
+        estado: 'firmado',
+        firma_png: firmaPng,
+        pdf_firmado_url: urlFirmada?.signedUrl || rutaArchivo,
+        firmado_en: new Date().toISOString(),
+      })
+      .eq('id', contrato.id)
+      .eq('estado', contrato.estado); // evita doble firma simultanea
+    if (updError) throw updError;
+
+    await registrar(req, {
+      actorTipo: 'conductor', actorId: sesion.placa,
+      accion: 'firma', objetivo: contrato.id,
+      detalle: { titulo: contrato.titulo },
+    });
+
+    return res.status(200).json({ ok: true, rutaArchivo: urlFirmada?.signedUrl || rutaArchivo });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: err.message });
