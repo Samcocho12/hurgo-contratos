@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import SignatureCanvas from 'react-signature-canvas';
-import { supabase } from '../../../lib/supabaseClient';
+import { llamarApiConductor } from '../../../lib/apiConductor';
 import AppHeader from '../../../components/AppHeader';
 
 export default function FirmarContrato() {
@@ -20,19 +20,13 @@ export default function FirmarContrato() {
   }, [id]);
 
   async function cargarContrato() {
-    const { data: c } = await supabase.from('contratos').select('*').eq('id', id).single();
-    if (!c) return;
-    setContrato(c);
-
-    const { data: dataAnexos } = await supabase
-      .from('contrato_anexos').select('*').eq('contrato_id', id).order('creado_en', { ascending: true });
-    setAnexos(dataAnexos || []);
-
-    if (c.estado === 'pendiente') {
-      await supabase.from('contratos')
-        .update({ estado: 'visto', visto_en: new Date().toISOString() })
-        .eq('id', id);
+    const { ok, datos } = await llamarApiConductor(`/api/conductor/contratos?id=${id}`);
+    if (!ok) {
+      setError(datos?.error || 'No se pudo cargar el contrato.');
+      return;
     }
+    setContrato(datos.contrato);
+    setAnexos(datos.contrato?.anexos || []);
   }
 
   async function confirmarFirma() {
@@ -45,29 +39,16 @@ export default function FirmarContrato() {
 
     const firmaPng = sigPadRef.current.getTrimmedCanvas().toDataURL('image/png');
 
-    let rutaArchivo = null;
-    try {
-      const resp = await fetch('/api/generar-pdf', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contratoId: contrato.id, firmaPng }),
-      });
-      const resultado = await resp.json();
-      if (resp.ok) rutaArchivo = resultado.rutaArchivo;
-    } catch (e) {
-      // Si el PDF falla, igual dejamos registrada la firma para no frenar la demo.
-    }
-
-    const { error: updError } = await supabase.from('contratos').update({
-      estado: 'firmado',
-      firma_png: firmaPng,
-      pdf_firmado_url: rutaArchivo,
-      firmado_en: new Date().toISOString(),
-    }).eq('id', contrato.id);
+    // El servidor valida la sesion, comprueba que el contrato sea tuyo,
+    // genera el PDF y marca la firma. El navegador ya no escribe en la BD.
+    const { ok, datos } = await llamarApiConductor('/api/generar-pdf', {
+      method: 'POST',
+      body: JSON.stringify({ contratoId: contrato.id, firmaPng }),
+    });
 
     setEnviando(false);
-    if (updError) {
-      setError('No se pudo guardar la firma: ' + updError.message);
+    if (!ok) {
+      setError(datos?.error || 'No se pudo guardar la firma. Intenta de nuevo.');
       return;
     }
     router.push('/conductor');
