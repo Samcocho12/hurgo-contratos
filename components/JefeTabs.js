@@ -6,6 +6,7 @@ const TABS = [
   { href: '/jefe/conductores', label: 'Conductores' },
   { href: '/jefe/firmados', label: 'Firmados' },
   { href: '/jefe/usuarios', label: 'Usuarios' },
+  { href: '/jefe/auditoria', label: 'Actividad' },
 ];
 
 export default function JefeTabs({ activo, contadores = {} }) {
