@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { normalizarPlaca } from '../lib/placa';
 import { supabase } from '../lib/supabaseClient';
+import { llamarApiConductor } from '../lib/apiConductor';
 
 export default function Login() {
   const router = useRouter();
@@ -27,6 +28,9 @@ export default function Login() {
     if (router.isReady && router.query.coordinador) setMostrarCoordLogin(true);
   }, [router.isReady, router.query.coordinador]);
 
+  // La identidad real vive en la cookie de sesion firmada que emite el
+  // servidor. Lo de localStorage queda solo como preferencia de pantalla
+  // (saludo, ultima placa); ya no da acceso a nada.
   function entrarYRedirigir(placaLimpia) {
     localStorage.setItem('hurgo_rol', 'conductor');
     localStorage.setItem('hurgo_nombre', nombreConductor.trim());
@@ -48,21 +52,22 @@ export default function Login() {
     }
 
     setCargandoConductor(true);
-    const { data: existente } = await supabase
-      .from('conductores')
-      .select('placa')
-      .eq('placa', placaLimpia)
-      .maybeSingle();
+    const { ok, status, datos } = await llamarApiConductor('/api/auth/ingresar', {
+      method: 'POST',
+      body: JSON.stringify({ placa: placaLimpia, nombre: nombreConductor.trim() }),
+    });
     setCargandoConductor(false);
 
-    if (existente) {
-      // ya estaba registrado: solo actualiza el nombre por si cambió, y entra directo
-      await supabase.from('conductores').update({ nombre: nombreConductor.trim() }).eq('placa', placaLimpia);
+    if (ok) {
       entrarYRedirigir(placaLimpia);
-    } else {
-      // primera vez con esta placa: pide cédula y celular para completar el registro
-      setPedirRegistro(true);
+      return;
     }
+    if (status === 401) {
+      // Primera vez con esta placa: pide cédula y celular.
+      setPedirRegistro(true);
+      return;
+    }
+    setError(datos.error || 'No se pudo ingresar. Intenta de nuevo.');
   }
 
   async function completarRegistro(e) {
@@ -78,15 +83,18 @@ export default function Login() {
     }
     const placaLimpia = normalizarPlaca(placaConductor);
     setCargandoConductor(true);
-    const { error: upsertError } = await supabase.from('conductores').upsert({
-      placa: placaLimpia,
-      nombre: nombreConductor.trim(),
-      cedula: cedula.trim(),
-      celular: celular.trim(),
+    const { ok, datos } = await llamarApiConductor('/api/auth/registrar', {
+      method: 'POST',
+      body: JSON.stringify({
+        placa: placaLimpia,
+        nombre: nombreConductor.trim(),
+        cedula: cedula.trim(),
+        celular: celular.trim(),
+      }),
     });
     setCargandoConductor(false);
-    if (upsertError) {
-      setErrorRegistro('No se pudo completar el registro: ' + upsertError.message);
+    if (!ok) {
+      setErrorRegistro(datos.error || 'No se pudo completar el registro.');
       return;
     }
     entrarYRedirigir(placaLimpia);
