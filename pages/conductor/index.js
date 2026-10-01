@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import { supabase } from '../../lib/supabaseClient';
+import { llamarApiConductor } from '../../lib/apiConductor';
 import AppHeader from '../../components/AppHeader';
 import { formatearPlaca } from '../../lib/placa';
 
@@ -21,17 +21,19 @@ export default function ConductorDashboard() {
     if (rol !== 'conductor' || !placaGuardada) { router.replace('/login'); return; }
     setNombre(nombreGuardado || '');
     setPlaca(placaGuardada);
-    cargar(placaGuardada);
+    cargar();
   }, []);
 
-  async function cargar(placaConductor) {
-    const { data } = await supabase
-      .from('contratos')
-      .select('*')
-      .eq('conductor_placa', placaConductor)
-      .order('creado_en', { ascending: false });
-    setContratos(data || []);
-    setCargado(true);
+  async function cargar() {
+    const { ok, datos } = await llamarApiConductor('/api/conductor/contratos');
+    if (!ok) {
+      setContratos([]);
+      setCargando(false);
+      if (datos?.error) console.warn(datos.error);
+      return;
+    }
+    setContratos(datos.contratos || []);
+    setCargando(false);
   }
 
   function salir() {
