@@ -1,243 +1,187 @@
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
-import { supabase } from '../../lib/supabaseClient';
-import { llamarApiJefe } from '../../lib/apiJefe';
-import AppHeader from '../../components/AppHeader';
-import JefeTabs from '../../components/JefeTabs';
-import { normalizarPlaca, formatearPlaca } from '../../lib/placa';
+// ============================================================
+// /api/jefe/conductores   (solo coordinadores autenticados)
+//
+// GET                                  -> lista de conductores + su estado
+// POST   { nombre, placa, cedula, celular } -> registra y devuelve el CODIGO
+// PATCH  { placa, accion }             -> codigo | activar | desactivar |
+//                                         revocar_dispositivos | borrar_pin
+// DELETE { placa }                     -> elimina del registro
+//
+// El codigo de enrolamiento se muestra UNA SOLA VEZ: en la base solo
+// queda su hash. Ni el coordinador ni el servidor pueden leerlo despues.
+// ============================================================
+import crypto from 'crypto';
+import bcrypt from 'bcryptjs';
+import { supabaseAdmin } from '../../../lib/supabaseAdmin';
+import { exigirCoordinador } from '../../../lib/sesion';
+import { registrar } from '../../../lib/auditoria';
+import { normalizarPlaca } from '../../../lib/placa';
 
-export default function ConductoresRegistrados() {
-  const router = useRouter();
-  const [conductores, setConductores] = useState([]);
-  const [mostrarForm, setMostrarForm] = useState(false);
-  const [nombre, setNombre] = useState('');
-  const [placa, setPlaca] = useState('');
-  const [cedula, setCedula] = useState('');
-  const [celular, setCelular] = useState('');
-  const [error, setError] = useState('');
-  const [cargando, setCargando] = useState(false);
+const HORAS_VIGENCIA = 72;
+const soloDigitos = (v) => String(v || '').replace(/\D/g, '');
 
-  // Codigo recien generado: se muestra una sola vez y no se puede recuperar.
-  const [codigoNuevo, setCodigoNuevo] = useState(null);
+// Codigo de 6 digitos con generador criptografico (no Math.random).
+function generarCodigo() {
+  return String(crypto.randomInt(0, 1_000_000)).padStart(6, '0');
+}
 
-  useEffect(() => { verificarAcceso(); }, []);
+async function asignarCodigo(placa) {
+  const codigo = generarCodigo();
+  const expira = new Date(Date.now() + HORAS_VIGENCIA * 3600_000).toISOString();
 
-  async function verificarAcceso() {
-    const { data } = await supabase.auth.getUser();
-    if (!data?.user || localStorage.getItem('hurgo_rol') !== 'jefe') {
-      router.replace('/login');
-      return;
+  const { error } = await supabaseAdmin
+    .from('conductores')
+    .update({
+      enrolamiento_hash: await bcrypt.hash(codigo, 10),
+      enrolamiento_expira: expira,
+      intentos_fallidos: 0,
+      bloqueado_hasta: null,
+    })
+    .eq('placa', placa);
+
+  if (error) throw new Error(error.message);
+  return { codigo, expira };
+}
+
+export default async function handler(req, res) {
+  res.setHeader('Cache-Control', 'no-store');
+
+  const coordinador = await exigirCoordinador(req, res);
+  if (!coordinador) return;
+
+  // ---------------------------------------------------------- GET
+  if (req.method === 'GET') {
+    const { data, error } = await supabaseAdmin
+      .from('conductores')
+      .select('placa, nombre, cedula, celular, creado_en, activo, enrolado_en, pin_hash, enrolamiento_hash, enrolamiento_expira, bloqueado_hasta')
+      .order('creado_en', { ascending: false });
+
+    if (error) return res.status(500).json({ error: error.message });
+
+    const placas = (data || []).map((c) => c.placa);
+    const { data: disp } = await supabaseAdmin
+      .from('dispositivos')
+      .select('conductor_placa')
+      .in('conductor_placa', placas.length ? placas : ['__nada__'])
+      .eq('revocado', false);
+
+    const porPlaca = {};
+    (disp || []).forEach((d) => { porPlaca[d.conductor_placa] = (porPlaca[d.conductor_placa] || 0) + 1; });
+
+    // Nunca se devuelven hashes al navegador: solo banderas.
+    const conductores = (data || []).map((c) => ({
+      placa: c.placa,
+      nombre: c.nombre,
+      cedula: c.cedula,
+      celular: c.celular,
+      creado_en: c.creado_en,
+      activo: c.activo !== false,
+      enrolado: Boolean(c.enrolado_en),
+      tienePin: Boolean(c.pin_hash),
+      codigoPendiente: Boolean(c.enrolamiento_hash) &&
+        new Date(c.enrolamiento_expira) > new Date(),
+      codigoExpira: c.enrolamiento_expira,
+      bloqueadoHasta: c.bloqueado_hasta,
+      dispositivos: porPlaca[c.placa] || 0,
+    }));
+
+    return res.status(200).json({ conductores });
+  }
+
+  // ---------------------------------------------------------- POST
+  if (req.method === 'POST') {
+    const placa = normalizarPlaca(String(req.body?.placa || ''));
+    const nombre = String(req.body?.nombre || '').trim().slice(0, 120);
+    const cedula = soloDigitos(req.body?.cedula).slice(0, 15) || null;
+    const celular = soloDigitos(req.body?.celular).slice(0, 15) || null;
+
+    if (nombre.length < 3) return res.status(400).json({ error: 'Escribe el nombre del conductor.' });
+    if (placa.length < 5) return res.status(400).json({ error: 'Ingresa la placa completa del vehiculo.' });
+
+    const { data: existente } = await supabaseAdmin
+      .from('conductores').select('placa').eq('placa', placa).maybeSingle();
+    if (existente) {
+      return res.status(409).json({ error: 'Esa placa ya esta registrada.' });
     }
-    cargar();
-  }
 
-  async function cargar() {
-    const { ok, datos } = await llamarApiJefe('/api/jefe/conductores');
-    if (!ok) { setError(datos.error || ''); return; }
-    setConductores(datos.conductores || []);
-  }
+    const { error } = await supabaseAdmin
+      .from('conductores')
+      .insert({ placa, nombre, cedula, celular, activo: true });
+    if (error) return res.status(500).json({ error: error.message });
 
-  async function registrar(e) {
-    e.preventDefault();
-    setError('');
-    const placaLimpia = normalizarPlaca(placa);
-    if (!nombre.trim()) { setError('Escribe el nombre del conductor.'); return; }
-    if (placaLimpia.length < 5) { setError('Ingresa la placa completa del vehículo.'); return; }
+    const { codigo, expira } = await asignarCodigo(placa);
 
-    setCargando(true);
-    const { ok, datos } = await llamarApiJefe('/api/jefe/conductores', {
-      method: 'POST',
-      body: JSON.stringify({ nombre: nombre.trim(), placa: placaLimpia, cedula, celular }),
+    await registrar(req, {
+      actorTipo: 'coordinador', actorId: coordinador.email,
+      accion: 'conductor_registrado', objetivo: placa,
     });
-    setCargando(false);
 
-    if (!ok) { setError(datos.error || 'No se pudo registrar.'); return; }
-
-    setNombre(''); setPlaca(''); setCedula(''); setCelular('');
-    setMostrarForm(false);
-    setCodigoNuevo({ placa: datos.placa, codigo: datos.codigo, expira: datos.expira });
-    cargar();
+    return res.status(201).json({ ok: true, placa, codigo, expira });
   }
 
-  async function accionSobre(placaObjetivo, accion, confirmacion) {
-    if (confirmacion && !window.confirm(confirmacion)) return;
-    const { ok, datos } = await llamarApiJefe('/api/jefe/conductores', {
-      method: 'PATCH',
-      body: JSON.stringify({ placa: placaObjetivo, accion }),
-    });
-    if (!ok) { alert(datos.error || 'No se pudo completar la acción.'); return; }
-    if (datos.codigo) {
-      setCodigoNuevo({ placa: placaObjetivo, codigo: datos.codigo, expira: datos.expira });
+  // ---------------------------------------------------------- PATCH
+  if (req.method === 'PATCH') {
+    const placa = normalizarPlaca(String(req.body?.placa || ''));
+    const accion = String(req.body?.accion || '');
+
+    const { data: conductor } = await supabaseAdmin
+      .from('conductores').select('placa').eq('placa', placa).maybeSingle();
+    if (!conductor) return res.status(404).json({ error: 'Conductor no encontrado.' });
+
+    if (accion === 'codigo') {
+      const { codigo, expira } = await asignarCodigo(placa);
+      await registrar(req, {
+        actorTipo: 'coordinador', actorId: coordinador.email,
+        accion: 'codigo_generado', objetivo: placa,
+      });
+      return res.status(200).json({ ok: true, codigo, expira });
     }
-    cargar();
+
+    if (accion === 'activar' || accion === 'desactivar') {
+      const activo = accion === 'activar';
+      await supabaseAdmin.from('conductores').update({ activo }).eq('placa', placa);
+      await registrar(req, {
+        actorTipo: 'coordinador', actorId: coordinador.email,
+        accion: activo ? 'conductor_activado' : 'conductor_desactivado', objetivo: placa,
+      });
+      return res.status(200).json({ ok: true });
+    }
+
+    if (accion === 'revocar_dispositivos') {
+      await supabaseAdmin.from('dispositivos').update({ revocado: true }).eq('conductor_placa', placa);
+      await registrar(req, {
+        actorTipo: 'coordinador', actorId: coordinador.email,
+        accion: 'dispositivos_revocados', objetivo: placa,
+      });
+      return res.status(200).json({ ok: true });
+    }
+
+    if (accion === 'borrar_pin') {
+      await supabaseAdmin.from('conductores')
+        .update({ pin_hash: null, intentos_fallidos: 0, bloqueado_hasta: null })
+        .eq('placa', placa);
+      await registrar(req, {
+        actorTipo: 'coordinador', actorId: coordinador.email,
+        accion: 'pin_borrado', objetivo: placa,
+      });
+      return res.status(200).json({ ok: true });
+    }
+
+    return res.status(400).json({ error: 'Accion no reconocida.' });
   }
 
-  async function eliminarConductor(placaEliminar, nombreEliminar) {
-    const confirmado = window.confirm(
-      `¿Eliminar a ${nombreEliminar} (${formatearPlaca(placaEliminar)}) del registro?\n\nEsto no borra los contratos que ya se le enviaron, solo lo quita de la lista de conductores.`
-    );
-    if (!confirmado) return;
-    const { ok, datos } = await llamarApiJefe('/api/jefe/conductores', {
-      method: 'DELETE',
-      body: JSON.stringify({ placa: placaEliminar }),
+  // ---------------------------------------------------------- DELETE
+  if (req.method === 'DELETE') {
+    const placa = normalizarPlaca(String(req.body?.placa || ''));
+    const { error } = await supabaseAdmin.from('conductores').delete().eq('placa', placa);
+    if (error) return res.status(500).json({ error: error.message });
+
+    await registrar(req, {
+      actorTipo: 'coordinador', actorId: coordinador.email,
+      accion: 'conductor_eliminado', objetivo: placa,
     });
-    if (!ok) { alert(datos.error || 'No se pudo eliminar.'); return; }
-    cargar();
+    return res.status(200).json({ ok: true });
   }
 
-  // ---------------------------------------------------- Código generado
-  if (codigoNuevo) {
-    const vence = new Date(codigoNuevo.expira).toLocaleString('es-CO', {
-      day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit',
-    });
-    return (
-      <div className="dashboard-bg">
-        <AppHeader />
-        <main className="page">
-          <h1 className="page-title">Código de ingreso</h1>
-          <p className="page-sub">
-            Entrégaselo a {formatearPlaca(codigoNuevo.placa)} en persona o por WhatsApp.
-          </p>
-
-          <div className="card" style={{ textAlign: 'center', padding: '28px 16px' }}>
-            <div className="card-meta">Código de un solo uso</div>
-            <div style={{
-              fontFamily: 'var(--font-mono)', fontSize: 44, fontWeight: 800,
-              letterSpacing: '8px', margin: '14px 0',
-            }}>
-              {codigoNuevo.codigo}
-            </div>
-            <div className="card-meta">Vence el {vence}</div>
-          </div>
-
-          <div className="card" style={{ background: 'rgba(255,196,0,.08)' }}>
-            <strong>Anótalo o mándalo ahora.</strong> Este código no se vuelve a mostrar:
-            en el sistema solo queda guardado de forma cifrada. Si se pierde, genera uno nuevo.
-          </div>
-
-          <button
-            className="btn btn-ghost"
-            onClick={() => navigator.clipboard?.writeText(codigoNuevo.codigo)}
-          >
-            Copiar código
-          </button>
-          <button className="btn btn-stamp" onClick={() => setCodigoNuevo(null)}>
-            Listo, ya lo entregué
-          </button>
-        </main>
-      </div>
-    );
-  }
-
-  // ---------------------------------------------------- Formulario
-  if (mostrarForm) {
-    return (
-      <div className="dashboard-bg">
-        <AppHeader />
-        <main className="page">
-          <button className="back-link" onClick={() => setMostrarForm(false)}>← Cancelar</button>
-          <h1 className="page-title">Registrar conductor</h1>
-          <p className="page-sub">Al guardar se genera un código de ingreso para entregarle.</p>
-          <form onSubmit={registrar}>
-            <label style={{ marginTop: 0 }}>Nombre del conductor</label>
-            <input value={nombre} onChange={(e) => setNombre(e.target.value)}
-              placeholder="Ej: Carlos Restrepo" />
-
-            <label>Placa del vehículo</label>
-            <input value={placa} onChange={(e) => setPlaca(e.target.value)}
-              placeholder="Ej: ABC123"
-              style={{ textTransform: 'uppercase', fontFamily: 'var(--font-mono)', letterSpacing: '1.5px', fontWeight: 700 }}
-              maxLength={8} />
-
-            <label>Cédula</label>
-            <input value={cedula} onChange={(e) => setCedula(e.target.value)}
-              placeholder="Ej: 1083012966" inputMode="numeric" />
-
-            <label>Celular</label>
-            <input value={celular} onChange={(e) => setCelular(e.target.value)}
-              placeholder="Ej: 3001234567" type="tel" />
-
-            {error && <div className="error">{error}</div>}
-            <button className="btn btn-stamp" disabled={cargando}>
-              {cargando ? 'Guardando...' : 'Registrar y generar código'}
-            </button>
-          </form>
-        </main>
-      </div>
-    );
-  }
-
-  // ---------------------------------------------------- Lista
-  return (
-    <div className="dashboard-bg">
-      <AppHeader />
-      <main className="page">
-        <button className="back-link" onClick={() => router.push('/jefe')}>← Volver a contratos</button>
-        <h1 className="page-title">Conductores registrados</h1>
-        <p className="page-sub">Todos los conductores y vehículos que tienes registrados.</p>
-
-        <JefeTabs activo="/jefe/conductores" />
-
-        {error && <div className="error">{error}</div>}
-
-        {conductores.length === 0 && (
-          <div className="empty">
-            <div className="empty-title">Aún no hay conductores registrados</div>
-            <div className="empty-sub">Toca + para agregar el primero</div>
-          </div>
-        )}
-
-        {conductores.map((c) => {
-          const bloqueado = c.bloqueadoHasta && new Date(c.bloqueadoHasta) > new Date();
-          return (
-            <div className="card" key={c.placa} style={!c.activo ? { opacity: 0.55 } : undefined}>
-              <div className="card-row">
-                <div>
-                  <span className="plate-badge">{formatearPlaca(c.placa)}</span>
-                  <div className="card-title" style={{ marginTop: 8 }}>{c.nombre}</div>
-                  <div className="card-meta">
-                    {c.cedula && `C.C. ${c.cedula}`}{c.cedula && c.celular && ' · '}{c.celular}
-                  </div>
-                  <div className="card-meta" style={{ marginTop: 6 }}>
-                    {!c.activo && '⛔ Desactivado · '}
-                    {c.enrolado ? '✅ Enrolado' : c.codigoPendiente ? '⏳ Código pendiente' : '⚠️ Sin enrolar'}
-                    {c.dispositivos > 0 && ` · ${c.dispositivos} dispositivo(s)`}
-                    {bloqueado && ' · 🔒 Bloqueado por intentos'}
-                  </div>
-                </div>
-              </div>
-
-              <div className="card-foot" style={{ flexWrap: 'wrap', gap: 6 }}>
-                <button className="btn btn-ghost btn-sm"
-                  onClick={() => accionSobre(c.placa, 'codigo')}>
-                  Generar código
-                </button>
-
-                {c.dispositivos > 0 && (
-                  <button className="btn btn-ghost btn-sm"
-                    onClick={() => accionSobre(c.placa, 'revocar_dispositivos',
-                      `¿Desvincular los celulares de ${c.nombre}?\n\nVa a necesitar un código nuevo para volver a entrar.`)}>
-                    Desvincular celulares
-                  </button>
-                )}
-
-                <button className="btn btn-ghost btn-sm"
-                  onClick={() => accionSobre(c.placa, c.activo ? 'desactivar' : 'activar',
-                    c.activo ? `¿Desactivar el acceso de ${c.nombre}?` : null)}>
-                  {c.activo ? 'Desactivar' : 'Reactivar'}
-                </button>
-
-                <button className="btn btn-danger btn-sm"
-                  onClick={() => eliminarConductor(c.placa, c.nombre)}>
-                  Eliminar
-                </button>
-              </div>
-            </div>
-          );
-        })}
-
-        <button className="fab" onClick={() => setMostrarForm(true)} title="Registrar conductor">+</button>
-      </main>
-    </div>
-  );
+  return res.status(405).json({ error: 'Metodo no permitido' });
 }
