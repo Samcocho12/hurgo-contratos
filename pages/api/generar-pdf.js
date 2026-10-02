@@ -44,7 +44,9 @@ export default async function handler(req, res) {
   // ---- GUARDIA 1: tiene que haber una sesion de conductor valida.
   // Antes esta ruta era publica: cualquiera podia estampar una firma
   // en cualquier contrato sin estar logueado.
-  const sesion = await exigirConductor(req, res);
+  // exigirFuerte: firmar requiere huella o PIN, nunca el ingreso por placa.
+  // Es lo que ata la firma a una persona y no a un dato publico.
+  const sesion = await exigirConductor(req, res, { exigirFuerte: true });
   if (!sesion) return;
 
   const { contratoId, firmaPng } = req.body;
