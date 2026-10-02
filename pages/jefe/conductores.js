@@ -168,6 +168,9 @@ export default function ConductoresRegistrados() {
   }
 
   // ---------------------------------------------------- Lista
+  const pendientes = conductores.filter((c) => !c.aprobado);
+  const aprobados = conductores.filter((c) => c.aprobado);
+
   return (
     <div className="dashboard-bg">
       <AppHeader />
@@ -180,6 +183,50 @@ export default function ConductoresRegistrados() {
 
         {error && <div className="error">{error}</div>}
 
+        {pendientes.length > 0 && (
+          <>
+            <div className="card" style={{ background: 'rgba(255,196,0,.12)', marginBottom: 4 }}>
+              <strong>
+                {pendientes.length} solicitud{pendientes.length > 1 ? 'es' : ''} por confirmar
+              </strong>
+              <div className="card-meta" style={{ marginTop: 4 }}>
+                Estas personas se registraron solas. Confirma que de verdad manejan ese vehículo
+                antes de aprobarlas.
+              </div>
+            </div>
+
+            {pendientes.map((c) => (
+              <div className="card" key={c.placa} style={{ borderLeft: '3px solid #f5a524' }}>
+                <span className="plate-badge">{formatearPlaca(c.placa)}</span>
+                <div className="card-title" style={{ marginTop: 8 }}>{c.nombre}</div>
+                <div className="card-meta">
+                  {c.cedula && `C.C. ${c.cedula}`}{c.cedula && c.celular && ' · '}{c.celular}
+                </div>
+                <div className="card-meta" style={{ marginTop: 4 }}>
+                  Solicitó el {new Date(c.creado_en).toLocaleString('es-CO')}
+                  {c.solicitudIp && ` · IP ${c.solicitudIp}`}
+                </div>
+                <div className="card-meta">
+                  {c.enrolado ? '✅ Ya registró huella o PIN' : '⏳ Aún no se enrola'}
+                </div>
+
+                <div className="card-foot" style={{ flexWrap: 'wrap', gap: 6 }}>
+                  <button className="btn btn-stamp btn-sm"
+                    onClick={() => accionSobre(c.placa, 'aprobar',
+                      `¿Confirmas que ${c.nombre} maneja el vehículo ${formatearPlaca(c.placa)}?`)}>
+                    Aprobar
+                  </button>
+                  <button className="btn btn-danger btn-sm"
+                    onClick={() => accionSobre(c.placa, 'rechazar',
+                      `¿Rechazar la solicitud de ${c.nombre}?\n\nSe borra el registro y la placa queda libre. Queda constancia en Actividad.`)}>
+                    Rechazar
+                  </button>
+                </div>
+              </div>
+            ))}
+          </>
+        )}
+
         {conductores.length === 0 && (
           <div className="empty">
             <div className="empty-title">Aún no hay conductores registrados</div>
@@ -187,7 +234,7 @@ export default function ConductoresRegistrados() {
           </div>
         )}
 
-        {conductores.map((c) => {
+        {aprobados.map((c) => {
           const bloqueado = c.bloqueadoHasta && new Date(c.bloqueadoHasta) > new Date();
           return (
             <div className="card" key={c.placa} style={!c.activo ? { opacity: 0.55 } : undefined}>
