@@ -110,6 +110,8 @@ export default async function handler(req, res) {
       if (error) return res.status(500).json({ error: 'No se pudo guardar la huella.' });
 
       await vincularDispositivo(req, res, sesion.placa, req.headers['user-agent']);
+      // Registrar la huella acredita al conductor: la sesion pasa a FUERTE.
+      await crearSesionConductor(res, sesion.placa, { provisional: false, debil: false });
       await registrar(req, {
         actorTipo: 'conductor', actorId: sesion.placa, accion: 'passkey_registrada',
       });
