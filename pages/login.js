@@ -174,7 +174,12 @@ export default function Login() {
       setErrorRegistro(datos.error || 'No se pudo completar el registro.');
       return;
     }
-    entrarYRedirigir(placaLimpia);
+
+    // Recien registrado: va DIRECTO a poner huella y PIN. Si entrara a sus
+    // contratos sin eso, quedaria con el acceso mas debil del sistema.
+    localStorage.setItem('hurgo_nombre', nombreConductor.trim());
+    localStorage.setItem('hurgo_placa', placaLimpia);
+    router.push('/enrolar?nuevo=1');
   }
 
   async function entrarComoJefe(e) {

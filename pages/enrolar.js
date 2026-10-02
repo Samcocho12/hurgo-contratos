@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { startRegistration } from '@simplewebauthn/browser';
 import { llamarApiConductor } from '../lib/apiConductor';
@@ -11,7 +11,19 @@ import { normalizarPlaca, formatearPlaca } from '../lib/placa';
 export default function Enrolar() {
   const router = useRouter();
 
+  // ?nuevo=1 -> viene de registrarse: ya tiene sesion, se salta el codigo.
   const [paso, setPaso] = useState(1);
+  const [reciénRegistrado, setReciénRegistrado] = useState(false);
+
+  useEffect(() => {
+    if (!router.isReady) return;
+    if (router.query.nuevo === '1') {
+      setReciénRegistrado(true);
+      setPlaca(localStorage.getItem('hurgo_placa') || '');
+      setNombre(localStorage.getItem('hurgo_nombre') || '');
+      setPaso(2);
+    }
+  }, [router.isReady]);
   const [placa, setPlaca] = useState('');
   const [codigo, setCodigo] = useState('');
   const [nombre, setNombre] = useState('');
@@ -149,8 +161,9 @@ export default function Enrolar() {
           <div className="login-form">
             <h1 className="page-title">Hola{nombre ? `, ${nombre.split(' ')[0]}` : ''}</h1>
             <p className="page-sub">
-              Registra tu huella para entrar rápido. Tu huella se queda en este celular:
-              la empresa no la puede ver ni copiar.
+              {reciénRegistrado
+                ? 'Falta un paso: registra tu huella para proteger tu cuenta. Se queda en este celular, la empresa no la puede ver ni copiar.'
+                : 'Registra tu huella para entrar rápido. Tu huella se queda en este celular: la empresa no la puede ver ni copiar.'}
             </p>
 
             <div style={{ fontSize: 56, textAlign: 'center', margin: '18px 0' }}>👆</div>
@@ -165,6 +178,12 @@ export default function Enrolar() {
             <button type="button" className="link-btn" onClick={() => setPaso(3)}>
               Mi celular no tiene huella, usar solo PIN
             </button>
+
+            {!reciénRegistrado && (
+              <button type="button" className="link-btn" onClick={() => router.push('/login')}>
+                Volver
+              </button>
+            )}
           </div>
         )}
 
@@ -176,6 +195,11 @@ export default function Enrolar() {
               Cuatro dígitos para cuando la huella no funcione. Solo sirve en este celular.
               No se lo digas a nadie, ni a tu coordinador.
             </p>
+            {reciénRegistrado && (
+              <div className="card" style={{ background: 'rgba(255,196,0,.08)', textAlign: 'left' }}>
+                Este es el último paso. Sin PIN ni huella no vas a poder firmar contratos.
+              </div>
+            )}
 
             <label>PIN de 4 dígitos</label>
             <input
