@@ -13,6 +13,7 @@ export default function ConductorDashboard() {
   const [placa, setPlaca] = useState('');
   const [contratos, setContratos] = useState([]);
   const [cargado, setCargado] = useState(false);
+  const [pendiente, setPendiente] = useState(false);
 
   useEffect(() => {
     const rol = localStorage.getItem('hurgo_rol');
@@ -28,12 +29,12 @@ export default function ConductorDashboard() {
     const { ok, datos } = await llamarApiConductor('/api/conductor/contratos');
     if (!ok) {
       setContratos([]);
-      setCargando(false);
+      setCargado(true);
       if (datos?.pendienteAprobacion) setPendiente(true);
       return;
     }
     setContratos(datos.contratos || []);
-    setCargando(false);
+    setCargado(true);
   }
 
   function salir() {
