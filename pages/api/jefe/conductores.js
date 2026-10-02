@@ -53,7 +53,7 @@ export default async function handler(req, res) {
   if (req.method === 'GET') {
     const { data, error } = await supabaseAdmin
       .from('conductores')
-      .select('placa, nombre, cedula, celular, creado_en, activo, enrolado_en, pin_hash, enrolamiento_hash, enrolamiento_expira, bloqueado_hasta')
+      .select('placa, nombre, cedula, celular, creado_en, activo, enrolado_en, pin_hash, enrolamiento_hash, enrolamiento_expira, bloqueado_hasta, aprobado, auto_registro, solicitud_ip, aprobado_en')
       .order('creado_en', { ascending: false });
 
     if (error) return res.status(500).json({ error: error.message });
@@ -83,6 +83,10 @@ export default async function handler(req, res) {
       codigoExpira: c.enrolamiento_expira,
       bloqueadoHasta: c.bloqueado_hasta,
       dispositivos: porPlaca[c.placa] || 0,
+      aprobado: c.aprobado !== false,
+      autoRegistro: Boolean(c.auto_registro),
+      solicitudIp: c.solicitud_ip,
+      aprobadoEn: c.aprobado_en,
     }));
 
     return res.status(200).json({ conductores });
@@ -106,7 +110,13 @@ export default async function handler(req, res) {
 
     const { error } = await supabaseAdmin
       .from('conductores')
-      .insert({ placa, nombre, cedula, celular, activo: true });
+      .insert({
+        placa, nombre, cedula, celular,
+        activo: true,
+        aprobado: true,          // creado por el coordinador: no requiere confirmacion
+        aprobado_en: new Date().toISOString(),
+        aprobado_por: coordinador.email,
+      });
     if (error) return res.status(500).json({ error: error.message });
 
     const { codigo, expira } = await asignarCodigo(placa);
@@ -135,6 +145,43 @@ export default async function handler(req, res) {
         accion: 'codigo_generado', objetivo: placa,
       });
       return res.status(200).json({ ok: true, codigo, expira });
+    }
+
+    if (accion === 'aprobar') {
+      await supabaseAdmin
+        .from('conductores')
+        .update({
+          aprobado: true,
+          aprobado_en: new Date().toISOString(),
+          aprobado_por: coordinador.email,
+        })
+        .eq('placa', placa);
+
+      await registrar(req, {
+        actorTipo: 'coordinador', actorId: coordinador.email,
+        accion: 'solicitud_aprobada', objetivo: placa,
+      });
+      return res.status(200).json({ ok: true });
+    }
+
+    if (accion === 'rechazar') {
+      // Se borra el registro completo: la placa queda libre para el
+      // conductor verdadero, y las passkeys y dispositivos del impostor
+      // se van en cascada.
+      const { data: previo } = await supabaseAdmin
+        .from('conductores')
+        .select('nombre, cedula, celular, solicitud_ip')
+        .eq('placa', placa)
+        .maybeSingle();
+
+      await supabaseAdmin.from('conductores').delete().eq('placa', placa);
+
+      await registrar(req, {
+        actorTipo: 'coordinador', actorId: coordinador.email,
+        accion: 'solicitud_rechazada', objetivo: placa,
+        detalle: previo || null,   // queda constancia de quien lo intento
+      });
+      return res.status(200).json({ ok: true });
     }
 
     if (accion === 'activar' || accion === 'desactivar') {
