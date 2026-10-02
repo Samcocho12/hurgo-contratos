@@ -29,7 +29,7 @@ export default function ConductorDashboard() {
     if (!ok) {
       setContratos([]);
       setCargando(false);
-      if (datos?.error) console.warn(datos.error);
+      if (datos?.pendienteAprobacion) setPendiente(true);
       return;
     }
     setContratos(datos.contratos || []);
@@ -45,6 +45,31 @@ export default function ConductorDashboard() {
 
   const pendientes = contratos.filter((c) => c.estado === 'pendiente' || c.estado === 'visto').length;
   const firmados = contratos.filter((c) => c.estado === 'firmado').length;
+
+  if (pendiente) {
+    return (
+      <div className="dashboard-bg">
+        <AppHeader />
+        <main className="page">
+          <div style={{ fontSize: 60, textAlign: 'center', marginTop: 30 }}>⏳</div>
+          <h1 className="page-title" style={{ textAlign: 'center' }}>Casi listo</h1>
+          <p className="page-sub" style={{ textAlign: 'center' }}>
+            Tu registro quedó guardado. Tu coordinador debe confirmar que manejas
+            este vehículo antes de que puedas ver tus contratos.
+          </p>
+          <div className="card">
+            <div className="card-meta">
+              Avísale a tu coordinador que ya te registraste. Cuando te confirme,
+              vuelve a abrir la app y entra con tu huella.
+            </div>
+          </div>
+          <button className="btn btn-ghost" onClick={() => location.reload()}>
+            Ya me confirmaron, revisar
+          </button>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="dashboard-bg">
