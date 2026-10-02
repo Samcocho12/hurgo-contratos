@@ -36,7 +36,7 @@ export default async function handler(req, res) {
 
   const { data: conductor } = await supabaseAdmin
     .from('conductores')
-    .select('nombre, activo, pin_hash')
+    .select('nombre, activo, pin_hash, aprobado')
     .eq('placa', placa)
     .maybeSingle();
 
@@ -57,5 +57,6 @@ export default async function handler(req, res) {
     nombre: conductor.nombre || '',
     tieneHuella: Boolean(passkey),
     tienePin: Boolean(conductor.pin_hash),
+    aprobado: conductor.aprobado !== false,
   });
 }
