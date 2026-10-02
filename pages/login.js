@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { normalizarPlaca } from '../lib/placa';
+import { normalizarPlaca, formatearPlaca } from '../lib/placa';
 import { supabase } from '../lib/supabaseClient';
 import { llamarApiConductor } from '../lib/apiConductor';
 import { startAuthentication } from '@simplewebauthn/browser';
@@ -12,6 +12,8 @@ export default function Login() {
   const [error, setError] = useState('');
   const [cargandoConductor, setCargandoConductor] = useState(false);
   const [usandoHuella, setUsandoHuella] = useState(false);
+  const [reconocido, setReconocido] = useState(null);   // {placa, nombre, tieneHuella}
+  const [comprobando, setComprobando] = useState(true);
 
   // paso 2: registro (solo la primera vez que se ve esa placa)
   const [pedirRegistro, setPedirRegistro] = useState(false);
@@ -40,11 +42,29 @@ export default function Login() {
     router.push('/conductor');
   }
 
+  // Al abrir: ¿este celular ya esta vinculado a un conductor?
+  useEffect(() => {
+    (async () => {
+      const { ok, datos } = await llamarApiConductor('/api/auth/estado');
+      setComprobando(false);
+      if (!ok) return;
+
+      if (datos.sesionActiva) {
+        localStorage.setItem('hurgo_rol', 'conductor');
+        localStorage.setItem('hurgo_placa', datos.placa);
+        router.replace('/conductor');
+        return;
+      }
+      if (datos.reconocido) setReconocido(datos);
+    })();
+  }, []);
+
   // Ingreso con huella o rostro. Abre sesion FUERTE (habilita firmar).
   async function entrarConHuella() {
     setError('');
-    const placaLimpia = normalizarPlaca(placaConductor);
-    if (placaLimpia.length < 5) {
+    // Si el celular ya esta reconocido, la placa la pone el servidor.
+    const placaLimpia = reconocido?.placa || normalizarPlaca(placaConductor);
+    if (!reconocido && placaLimpia.length < 5) {
       setError('Escribe tu placa para usar la huella.');
       return;
     }
@@ -53,7 +73,7 @@ export default function Login() {
     try {
       const r1 = await llamarApiConductor('/api/auth/passkey', {
         method: 'POST',
-        body: JSON.stringify({ accion: 'login-opciones', placa: placaLimpia }),
+        body: JSON.stringify({ accion: 'login-opciones', placa: reconocido ? '' : placaLimpia }),
       });
       if (!r1.ok) {
         if (r1.datos?.sinPasskey) {
@@ -117,6 +137,11 @@ export default function Login() {
     if (status === 401) {
       // Primera vez con esta placa: pide cédula y celular.
       setPedirRegistro(true);
+      return;
+    }
+    if (datos?.yaEnrolado) {
+      // Ya tiene huella o PIN: el camino por nombre + placa queda cerrado.
+      setError('Esta placa ya está activada. Entra con tu huella o con tu PIN.');
       return;
     }
     setError(datos.error || 'No se pudo ingresar. Intenta de nuevo.');
@@ -260,6 +285,60 @@ export default function Login() {
 
           <div className="login-coord-access">
             <button className="link-btn" onClick={() => setPedirRegistro(false)}>← Volver</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ---------------- Celular ya vinculado: solo la huella ----------------
+  if (reconocido && !pedirRegistro && !mostrarCoordLogin) {
+    const primerNombre = (reconocido.nombre || '').split(' ')[0];
+    return (
+      <div className="login-screen">
+        <div className="login-wrap">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.png" alt="Hurgo Transporte" className="login-logo" />
+
+          <div className="login-form" style={{ textAlign: 'center' }}>
+            <h1 className="page-title">
+              {primerNombre ? `Hola, ${primerNombre}` : 'Hola'}
+            </h1>
+            <span className="plate-badge">{formatearPlaca(reconocido.placa)}</span>
+
+            <div style={{ fontSize: 64, margin: '26px 0 10px' }}>👆</div>
+            <p className="page-sub">Pon tu dedo para entrar</p>
+
+            {error && <div className="error">{error}</div>}
+
+            {reconocido.tieneHuella && (
+              <button className="btn btn-stamp" onClick={entrarConHuella} disabled={usandoHuella}>
+                {usandoHuella ? 'Esperando tu huella…' : 'Entrar con mi huella'}
+              </button>
+            )}
+
+            {reconocido.tienePin && (
+              <button
+                type="button"
+                className={reconocido.tieneHuella ? 'link-btn' : 'btn btn-stamp'}
+                onClick={() => router.push('/entrar-pin')}
+              >
+                {reconocido.tieneHuella ? 'La huella no funciona, usar mi PIN' : 'Entrar con mi PIN'}
+              </button>
+            )}
+
+            <button
+              type="button"
+              className="link-btn"
+              onClick={() => { setReconocido(null); setError(''); }}
+            >
+              No soy yo / usar otra placa
+            </button>
+          </div>
+
+          <div className="login-coord-access">
+            <button className="link-btn" onClick={() => setMostrarCoordLogin(true)}>Acceso coordinador</button>
+            <button className="link-btn" onClick={() => router.push('/rastreo')}>Rastrear un envío</button>
           </div>
         </div>
       </div>
