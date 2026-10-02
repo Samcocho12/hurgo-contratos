@@ -20,6 +20,20 @@ export default async function handler(req, res) {
   const sesion = await exigirConductor(req, res);
   if (!sesion) return;
 
+  // Puerta de aprobacion: sin el visto bueno del coordinador no hay datos.
+  const { data: estado } = await supabaseAdmin
+    .from('conductores')
+    .select('aprobado, nombre')
+    .eq('placa', sesion.placa)
+    .maybeSingle();
+
+  if (!estado || estado.aprobado === false) {
+    return res.status(403).json({
+      error: 'Tu registro está esperando la confirmación de tu coordinador.',
+      pendienteAprobacion: true,
+    });
+  }
+
   const { id } = req.query;
 
   // ---------- UNO SOLO ----------
