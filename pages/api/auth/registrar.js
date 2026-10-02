@@ -15,6 +15,7 @@
 import { supabaseAdmin } from '../../../lib/supabaseAdmin';
 import { crearSesionConductor } from '../../../lib/sesion';
 import { registrar } from '../../../lib/auditoria';
+import { ipDe } from '../../../lib/sesion';
 import { normalizarPlaca } from '../../../lib/placa';
 
 const soloDigitos = (v) => String(v || '').replace(/\D/g, '');
@@ -49,14 +50,22 @@ export default async function handler(req, res) {
     });
   }
 
+  // Nace PENDIENTE: puede enrolarse (huella y PIN) pero no ve contratos
+  // ni guias hasta que el coordinador confirme que es quien dice ser.
   const { error } = await supabaseAdmin
     .from('conductores')
-    .insert({ placa, nombre, cedula, celular, activo: true });
+    .insert({
+      placa, nombre, cedula, celular,
+      activo: true,
+      aprobado: false,
+      auto_registro: true,
+      solicitud_ip: ipDe(req),
+    });
 
   if (error) return res.status(500).json({ error: 'No se pudo completar el registro.' });
 
   await crearSesionConductor(res, placa, { provisional: false, debil: true });
   await registrar(req, { actorTipo: 'conductor', actorId: placa, accion: 'registro_nuevo' });
 
-  return res.status(201).json({ ok: true, conductor: { placa, nombre } });
+  return res.status(201).json({ ok: true, pendiente: true, conductor: { placa, nombre } });
 }
