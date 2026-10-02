@@ -36,7 +36,7 @@ export default async function handler(req, res) {
 
   const { data: conductor } = await supabaseAdmin
     .from('conductores')
-    .select('placa, nombre, activo')
+    .select('placa, nombre, activo, enrolado_en, pin_hash')
     .eq('placa', placa)
     .maybeSingle();
 
@@ -46,6 +46,26 @@ export default async function handler(req, res) {
       actorTipo: 'conductor', actorId: placa, accion: 'ingreso_fallido',
     });
     return res.status(401).json({ error: 'Esta placa no esta registrada. Habla con tu coordinador.' });
+  }
+
+  // ---- PUERTA CERRADA: si ya se enrolo, este camino no sirve mas.
+  // Nombre + placa es informacion publica (la placa esta pintada en el
+  // camion). Una vez que el conductor tiene huella o PIN, exigimos eso.
+  const { data: tienePasskey } = await supabaseAdmin
+    .from('passkeys')
+    .select('id')
+    .eq('conductor_placa', placa)
+    .limit(1)
+    .maybeSingle();
+
+  if (conductor.enrolado_en || conductor.pin_hash || tienePasskey) {
+    await registrar(req, {
+      actorTipo: 'conductor', actorId: placa, accion: 'ingreso_debil_bloqueado',
+    });
+    return res.status(403).json({
+      error: 'Esta placa ya esta activada. Entra con tu huella o tu PIN.',
+      yaEnrolado: true,
+    });
   }
 
   // Si el conductor completa su nombre la primera vez, se guarda.

@@ -20,7 +20,9 @@ import {
   guardarReto, leerReto, borrarReto,
   aBase64Url, deBase64Url, etiquetaDispositivo,
 } from '../../../lib/webauthn';
-import { leerSesion, crearSesionConductor, vincularDispositivo } from '../../../lib/sesion';
+import {
+  leerSesion, crearSesionConductor, vincularDispositivo, placaDelDispositivo,
+} from '../../../lib/sesion';
 import { registrar, estaBloqueado, registrarFallo, limpiarFallos } from '../../../lib/auditoria';
 import { normalizarPlaca } from '../../../lib/placa';
 
@@ -119,7 +121,11 @@ export default async function handler(req, res) {
     // LOGIN - paso 1: pedir el reto
     // ======================================================
     if (accion === 'login-opciones') {
-      const placa = normalizarPlaca(String(req.body?.placa || ''));
+      // Si el celular ya esta vinculado, la placa sale de la cookie:
+      // el conductor no escribe nada, solo pone el dedo.
+      const placa = normalizarPlaca(String(req.body?.placa || ''))
+        || (await placaDelDispositivo(req)) || '';
+
       if (placa.length < 5) return res.status(400).json({ error: 'Escribe tu placa.' });
 
       const minutos = await estaBloqueado(placa);
