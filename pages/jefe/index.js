@@ -132,7 +132,7 @@ export default function JefeDashboard() {
 
   if (mostrarForm) {
     return (
-      <div className="dashboard-bg">
+      <div className="dashboard-bg panel-admin">
         <AppHeader />
         <main className="page">
           <button className="back-link" onClick={() => setMostrarForm(false)}>← Cancelar</button>
@@ -188,7 +188,7 @@ export default function JefeDashboard() {
   }
 
   return (
-    <div className="dashboard-bg">
+    <div className="dashboard-bg panel-admin">
       <AppHeader />
       <main className="page">
         <h1 className="page-title">Contratos enviados</h1>
