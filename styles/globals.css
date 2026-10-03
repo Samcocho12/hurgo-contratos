@@ -624,31 +624,106 @@ button.tab-item{border:none;background:none;flex:1 0 auto;padding:9px 8px;}
 }
 
 
-/* ---------- panel de escritorio (coordinador) ----------
-   El resto de la app es mobile-first (max-width 480px). El panel del
-   coordinador se usa sobre todo en computador, asi que a partir de
-   900px se expande y las tarjetas se acomodan en columnas.
-   Todo lo que no sea tarjeta (titulos, pestanas, botones, filtros)
-   ocupa el ancho completo. */
-@media (min-width: 900px){
-  .panel-admin .app-header{max-width:100%;padding:15px 34px;}
-  .panel-admin .page{
-    max-width:1200px;padding:30px 34px 90px;
-    display:grid;
-    grid-template-columns:repeat(auto-fill, minmax(330px, 1fr));
-    gap:14px;
-    align-items:start;
-  }
-  .panel-admin .page > *:not(.card):not(.card-link){grid-column:1 / -1;}
-  .panel-admin .card{margin-bottom:0;height:100%;}
-  .panel-admin .card-link{display:block;height:100%;}
-  .panel-admin .card-link .card{margin-bottom:0;}
-  .panel-admin .page-title{font-size:32px;}
-  .panel-admin .page-sub{max-width:72ch;}
-  .panel-admin form{max-width:560px;}
-  .panel-admin .fab{bottom:30px;right:34px;width:58px;height:58px;}
-}
 
-@media (min-width: 1500px){
-  .panel-admin .page{max-width:1420px;}
+
+/* ============================================================
+   PANEL DEL COORDINADOR
+   La app es mobile-first. El panel se usa sobre todo en
+   computador, asi que a partir de 900px cambia a una consola
+   de trabajo: barra lateral fija, fondo plano y listas en tabla.
+   Por debajo de 900px no se activa nada de esto.
+   ============================================================ */
+
+.solo-escritorio{display:none;}
+
+@media (min-width: 900px){
+  .solo-movil{display:none;}
+  .solo-escritorio{display:block;}
+
+  .panel{display:grid;grid-template-columns:236px 1fr;min-height:100vh;background:#EEF1F7;}
+
+  /* ---------- barra lateral ---------- */
+  .panel-nav{
+    background:var(--navy);display:flex;flex-direction:column;
+    position:sticky;top:0;height:100vh;padding:22px 0 18px;
+  }
+  .panel-marca{display:block;padding:0 22px 24px;}
+  .panel-marca img{width:150px;height:auto;display:block;}
+
+  .panel-menu{display:flex;flex-direction:column;gap:2px;padding:0 12px;}
+  .panel-menu-item{
+    display:block;padding:11px 14px;border-radius:10px;text-decoration:none;
+    font-family:var(--font-body);font-size:14.5px;font-weight:500;
+    color:rgba(255,255,255,0.72);transition:background .12s ease,color .12s ease;
+  }
+  .panel-menu-item:hover{background:rgba(255,255,255,0.08);color:#fff;}
+  .panel-menu-activo,
+  .panel-menu-activo:hover{background:var(--amber);color:var(--navy-deep);font-weight:650;}
+  .panel-menu-item:focus-visible{outline:2px solid var(--amber);outline-offset:2px;}
+
+  .panel-pie{margin-top:auto;padding:16px 22px 0;border-top:1px solid rgba(255,255,255,0.12);}
+  .panel-rol{font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:6px;}
+  .panel-salir{
+    background:none;border:none;padding:0;cursor:pointer;
+    font-family:var(--font-body);font-size:13.5px;color:var(--amber);
+  }
+  .panel-salir:hover{text-decoration:underline;}
+
+  /* ---------- zona de contenido ---------- */
+  .panel-main{display:flex;flex-direction:column;min-width:0;}
+  .panel-top{
+    background:#fff;border-bottom:1px solid #DCE1EC;
+    padding:20px 34px;display:flex;align-items:flex-start;
+    justify-content:space-between;gap:24px;
+    position:sticky;top:0;z-index:5;
+  }
+  .panel-top-titulo{
+    font-family:var(--font-display);font-size:25px;font-weight:600;
+    margin:0;color:var(--navy);letter-spacing:0.2px;
+  }
+  .panel-top-sub{margin:4px 0 0;font-size:14px;color:var(--ink-soft);max-width:68ch;}
+  .panel-top-acciones{display:flex;gap:10px;flex-shrink:0;}
+  .panel-top-acciones .btn{margin:0;width:auto;padding:11px 20px;font-size:14px;}
+
+  .panel-cuerpo{padding:24px 34px 60px;max-width:1360px;width:100%;}
+
+  /* ---------- franja de cifras ---------- */
+  .cifras{display:flex;gap:30px;align-items:baseline;margin-bottom:20px;}
+  .cifra{display:flex;align-items:baseline;gap:8px;}
+  .cifra-num{font-family:var(--font-display);font-size:26px;font-weight:650;color:var(--navy);line-height:1;}
+  .cifra-lbl{font-size:13.5px;color:var(--ink-soft);}
+  .cifra-amber .cifra-num{color:#B4761A;}
+  .cifra-green .cifra-num{color:#157347;}
+
+  /* ---------- barra de filtros ---------- */
+  .panel-filtros{display:flex;gap:12px;margin-bottom:18px;align-items:center;}
+  .panel-filtros input,
+  .panel-filtros select{margin:0;max-width:330px;padding:11px 14px;font-size:14px;background:#fff;}
+
+  /* ---------- tabla ---------- */
+  .tabla-caja{background:#fff;border:1px solid #DCE1EC;border-radius:14px;overflow:hidden;}
+  .tabla{width:100%;border-collapse:collapse;font-size:14px;}
+  .tabla thead th{
+    text-align:left;font-family:var(--font-body);font-weight:600;font-size:12.5px;
+    color:var(--ink-soft);padding:12px 18px;background:#F7F9FC;
+    border-bottom:1px solid #DCE1EC;white-space:nowrap;
+  }
+  .tabla tbody td{padding:14px 18px;border-bottom:1px solid #EDF0F6;color:var(--ink);vertical-align:middle;}
+  .tabla tbody tr:last-child td{border-bottom:none;}
+  .tabla tbody tr:hover{background:#F7F9FC;}
+  .tabla .td-doc{font-weight:600;color:var(--navy);}
+  .tabla .td-suave{color:var(--ink-soft);white-space:nowrap;}
+  .tabla .td-fin{text-align:right;}
+  .tabla .plate-badge{margin:0;}
+
+  .tabla-vacia{padding:46px 20px;text-align:center;color:var(--ink-soft);background:#fff;}
+  .tabla-vacia strong{display:block;color:var(--navy);font-size:16px;margin-bottom:6px;}
+
+  /* el boton flotante no va en escritorio: la accion vive arriba */
+  .panel .fab{display:none;}
+  .panel .exit-row{display:none;}
+
+  /* formularios comodos de llenar, no estirados */
+  .panel-form{background:#fff;border:1px solid #DCE1EC;border-radius:14px;padding:26px 28px;max-width:620px;}
+  .panel-form label:first-of-type{margin-top:0;}
 }
