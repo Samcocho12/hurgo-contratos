@@ -132,7 +132,7 @@ export default function NuevaGuia() {
   const contrato = contratos.find((c) => c.id === contratoId);
 
   return (
-    <div className="dashboard-bg">
+    <div className="dashboard-bg panel-admin">
       <AppHeader />
       <main className="page">
         <button className="back-link" onClick={() => router.push('/jefe/guias')}>← Guías</button>

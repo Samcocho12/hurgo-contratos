@@ -82,7 +82,7 @@ export default function GuiasJefe() {
   const entregadas = guias.filter(FILTROS[4].cumple).length;
 
   return (
-    <div className="dashboard-bg">
+    <div className="dashboard-bg panel-admin">
       <AppHeader />
       <main className="page">
         <h1 className="page-title">Guías de envío</h1>
