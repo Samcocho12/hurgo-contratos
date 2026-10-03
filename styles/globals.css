@@ -640,12 +640,19 @@ button.tab-item{border:none;background:none;flex:1 0 auto;padding:9px 8px;}
   .solo-movil{display:none;}
   .solo-escritorio{display:block;}
 
-  .panel{display:grid;grid-template-columns:236px 1fr;min-height:100vh;background:#EEF1F7;}
+  /* La pagina no hace scroll: solo se desplaza la zona de contenido.
+     Asi la barra lateral siempre llega al fondo y no aparece una
+     segunda barra de desplazamiento sobre la ventana. */
+  #__next:has(.panel){min-height:0;}
+  .panel{
+    display:grid;grid-template-columns:236px 1fr;
+    height:100vh;height:100dvh;overflow:hidden;background:#EEF1F7;
+  }
 
   /* ---------- barra lateral ---------- */
   .panel-nav{
     background:var(--navy);display:flex;flex-direction:column;
-    position:sticky;top:0;height:100vh;padding:22px 0 18px;
+    height:100%;overflow-y:auto;padding:22px 0 18px;
   }
   .panel-marca{display:block;padding:0 22px 24px;}
   .panel-marca img{width:150px;height:auto;display:block;}
@@ -661,7 +668,7 @@ button.tab-item{border:none;background:none;flex:1 0 auto;padding:9px 8px;}
   .panel-menu-activo:hover{background:var(--amber);color:var(--navy-deep);font-weight:650;}
   .panel-menu-item:focus-visible{outline:2px solid var(--amber);outline-offset:2px;}
 
-  .panel-pie{margin-top:auto;padding:16px 22px 0;border-top:1px solid rgba(255,255,255,0.12);}
+  .panel-pie{margin-top:auto;padding:16px 22px 0;border-top:1px solid rgba(255,255,255,0.12);flex-shrink:0;}
   .panel-rol{font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:6px;}
   .panel-salir{
     background:none;border:none;padding:0;cursor:pointer;
@@ -670,12 +677,12 @@ button.tab-item{border:none;background:none;flex:1 0 auto;padding:9px 8px;}
   .panel-salir:hover{text-decoration:underline;}
 
   /* ---------- zona de contenido ---------- */
-  .panel-main{display:flex;flex-direction:column;min-width:0;}
+  .panel-main{display:flex;flex-direction:column;min-width:0;height:100%;overflow-y:auto;}
   .panel-top{
     background:#fff;border-bottom:1px solid #DCE1EC;
     padding:20px 34px;display:flex;align-items:flex-start;
     justify-content:space-between;gap:24px;
-    position:sticky;top:0;z-index:5;
+    position:sticky;top:0;z-index:5;flex-shrink:0;
   }
   .panel-top-titulo{
     font-family:var(--font-display);font-size:25px;font-weight:600;
