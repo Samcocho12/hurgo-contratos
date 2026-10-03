@@ -622,3 +622,33 @@ button.tab-item{border:none;background:none;flex:1 0 auto;padding:9px 8px;}
 @media (prefers-reduced-motion: reduce){
   .inicio-titulo, .inicio-lead, .inicio-acciones{animation:none;}
 }
+
+
+/* ---------- panel de escritorio (coordinador) ----------
+   El resto de la app es mobile-first (max-width 480px). El panel del
+   coordinador se usa sobre todo en computador, asi que a partir de
+   900px se expande y las tarjetas se acomodan en columnas.
+   Todo lo que no sea tarjeta (titulos, pestanas, botones, filtros)
+   ocupa el ancho completo. */
+@media (min-width: 900px){
+  .panel-admin .app-header{max-width:100%;padding:15px 34px;}
+  .panel-admin .page{
+    max-width:1200px;padding:30px 34px 90px;
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(330px, 1fr));
+    gap:14px;
+    align-items:start;
+  }
+  .panel-admin .page > *:not(.card):not(.card-link){grid-column:1 / -1;}
+  .panel-admin .card{margin-bottom:0;height:100%;}
+  .panel-admin .card-link{display:block;height:100%;}
+  .panel-admin .card-link .card{margin-bottom:0;}
+  .panel-admin .page-title{font-size:32px;}
+  .panel-admin .page-sub{max-width:72ch;}
+  .panel-admin form{max-width:560px;}
+  .panel-admin .fab{bottom:30px;right:34px;width:58px;height:58px;}
+}
+
+@media (min-width: 1500px){
+  .panel-admin .page{max-width:1420px;}
+}
