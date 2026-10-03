@@ -59,7 +59,7 @@ export default function ContratosFirmados() {
   }
 
   return (
-    <div className="dashboard-bg">
+    <div className="dashboard-bg panel-admin">
       <AppHeader />
       <main className="page">
         <button className="back-link" onClick={() => router.push('/jefe')}>← Volver a contratos</button>

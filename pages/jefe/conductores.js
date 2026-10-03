@@ -91,7 +91,7 @@ export default function ConductoresRegistrados() {
       day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit',
     });
     return (
-      <div className="dashboard-bg">
+      <div className="dashboard-bg panel-admin">
         <AppHeader />
         <main className="page">
           <h1 className="page-title">Código de ingreso</h1>
@@ -136,7 +136,7 @@ export default function ConductoresRegistrados() {
   // ---------------------------------------------------- Formulario
   if (mostrarForm) {
     return (
-      <div className="dashboard-bg">
+      <div className="dashboard-bg panel-admin">
         <AppHeader />
         <main className="page">
           <button className="back-link" onClick={() => setMostrarForm(false)}>← Cancelar</button>
@@ -176,7 +176,7 @@ export default function ConductoresRegistrados() {
   const aprobados = conductores.filter((c) => c.aprobado);
 
   return (
-    <div className="dashboard-bg">
+    <div className="dashboard-bg panel-admin">
       <AppHeader />
       <main className="page">
         <button className="back-link" onClick={() => router.push('/jefe')}>← Volver a contratos</button>
