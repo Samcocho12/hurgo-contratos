@@ -301,18 +301,18 @@ export default function Login() {
     const primerNombre = (reconocido.nombre || '').split(' ')[0];
     return (
       <div className="login-screen">
-        <div className="login-wrap">
+        <header className="login-hero">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.png" alt="Hurgo Transporte" className="login-logo" />
+          <img src="/logotipo-hurgo-blanco.svg" alt="Hurgo Transporte Logística" className="login-logotipo" />
+        </header>
+        <div className="login-wrap">
 
           <div className="login-form" style={{ textAlign: 'center' }}>
-            <h1 className="page-title">
-              {primerNombre ? `Hola, ${primerNombre}` : 'Hola'}
-            </h1>
+            <h1>{primerNombre ? `Hola, ${primerNombre}` : 'Hola'}</h1>
             <span className="plate-badge">{formatearPlaca(reconocido.placa)}</span>
 
             <div style={{ fontSize: 64, margin: '26px 0 10px' }}>👆</div>
-            <p className="page-sub">Pon tu dedo para entrar</p>
+            <p>Pon tu dedo para entrar</p>
 
             {error && <div className="error">{error}</div>}
 

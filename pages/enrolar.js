@@ -113,15 +113,17 @@ export default function Enrolar() {
 
   return (
     <div className="login-screen">
+        <header className="login-hero">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logotipo-hurgo-blanco.svg" alt="Hurgo Transporte Logística" className="login-logotipo" />
+        </header>
       <div className="login-wrap">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo.png" alt="Hurgo Transporte" className="login-logo" />
 
         {/* ----------------------------------- PASO 1 */}
         {paso === 1 && (
           <form className="login-form" onSubmit={canjearCodigo}>
-            <h1 className="page-title">Activa tu acceso</h1>
-            <p className="page-sub">
+            <h1>Activa tu acceso</h1>
+            <p>
               Escribe la placa de tu vehículo y el código de 6 dígitos que te dio tu coordinador.
             </p>
 
@@ -159,8 +161,8 @@ export default function Enrolar() {
         {/* ----------------------------------- PASO 2 */}
         {paso === 2 && (
           <div className="login-form">
-            <h1 className="page-title">Hola{nombre ? `, ${nombre.split(' ')[0]}` : ''}</h1>
-            <p className="page-sub">
+            <h1>Hola{nombre ? `, ${nombre.split(' ')[0]}` : ''}</h1>
+            <p>
               {reciénRegistrado
                 ? 'Falta un paso: registra tu huella para proteger tu cuenta. Se queda en este celular, la empresa no la puede ver ni copiar.'
                 : 'Registra tu huella para entrar rápido. Tu huella se queda en este celular: la empresa no la puede ver ni copiar.'}
@@ -195,8 +197,8 @@ export default function Enrolar() {
         {/* ----------------------------------- PASO 3 */}
         {paso === 3 && (
           <form className="login-form" onSubmit={guardarPin}>
-            <h1 className="page-title">Crea tu PIN</h1>
-            <p className="page-sub">
+            <h1>Crea tu PIN</h1>
+            <p>
               Cuatro dígitos para cuando la huella no funcione. Solo sirve en este celular.
               No se lo digas a nadie, ni a tu coordinador.
             </p>

@@ -48,12 +48,14 @@ export default function EntrarConPin() {
 
   return (
     <div className="login-screen">
+        <header className="login-hero">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logotipo-hurgo-blanco.svg" alt="Hurgo Transporte Logística" className="login-logotipo" />
+        </header>
       <div className="login-wrap">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo.png" alt="Hurgo Transporte" className="login-logo" />
 
         <form className="login-form" onSubmit={entrar} style={{ textAlign: 'center' }}>
-          <h1 className="page-title">Tu PIN</h1>
+          <h1>Tu PIN</h1>
           <span className="plate-badge">{formatearPlaca(datosCelular.placa)}</span>
 
           <input
