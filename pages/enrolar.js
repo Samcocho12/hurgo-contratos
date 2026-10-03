@@ -169,7 +169,12 @@ export default function Enrolar() {
             <div style={{ fontSize: 56, textAlign: 'center', margin: '18px 0' }}>👆</div>
 
             {error && <div className="error">{error}</div>}
-            {aviso && <div className="card" style={{ background: 'rgba(255,196,0,.08)' }}>{aviso}</div>}
+            {aviso && (
+              <div style={{
+                background: '#FFF6E0', border: '1px solid #E8B44A', borderRadius: 14,
+                padding: '12px 14px', color: '#7A4E00', fontSize: 14, textAlign: 'left',
+              }}>{aviso}</div>
+            )}
 
             <button className="btn btn-stamp" onClick={registrarHuella} disabled={cargando}>
               {cargando ? 'Esperando tu huella…' : 'Registrar mi huella'}
@@ -196,7 +201,10 @@ export default function Enrolar() {
               No se lo digas a nadie, ni a tu coordinador.
             </p>
             {reciénRegistrado && (
-              <div className="card" style={{ background: 'rgba(255,196,0,.08)', textAlign: 'left' }}>
+              <div style={{
+                background: '#FFF6E0', border: '1px solid #E8B44A', borderRadius: 14,
+                padding: '12px 14px', color: '#7A4E00', fontSize: 14, textAlign: 'left',
+              }}>
                 Este es el último paso. Sin PIN ni huella no vas a poder firmar contratos.
               </div>
             )}
