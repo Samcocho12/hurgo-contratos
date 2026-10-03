@@ -78,7 +78,7 @@ export default function UsuariosCoordinadores() {
 
   if (mostrarForm) {
     return (
-      <div className="dashboard-bg">
+      <div className="dashboard-bg panel-admin">
         <AppHeader />
         <main className="page">
           <button className="back-link" onClick={() => setMostrarForm(false)}>← Cancelar</button>
@@ -104,7 +104,7 @@ export default function UsuariosCoordinadores() {
   }
 
   return (
-    <div className="dashboard-bg">
+    <div className="dashboard-bg panel-admin">
       <AppHeader />
       <main className="page">
         <button className="back-link" onClick={() => router.push('/jefe')}>← Volver a contratos</button>
