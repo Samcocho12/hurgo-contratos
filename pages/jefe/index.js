@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { supabase } from '../../lib/supabaseClient';
-import AppHeader from '../../components/AppHeader';
-import JefeTabs from '../../components/JefeTabs';
+import PanelLayout from '../../components/PanelLayout';
 import { normalizarPlaca, formatearPlaca } from '../../lib/placa';
 
 const ESTADO_LABEL = { pendiente: 'Pendiente', visto: 'Visto', firmado: 'Firmado', rechazado: 'Rechazado' };
@@ -19,11 +18,9 @@ export default function JefeDashboard() {
   const [anexos, setAnexos] = useState([]);
   const [error, setError] = useState('');
   const [cargando, setCargando] = useState(false);
-  const [busquedaPlaca, setBusquedaPlaca] = useState('');
+  const [busqueda, setBusqueda] = useState('');
 
-  useEffect(() => {
-    verificarAcceso();
-  }, []);
+  useEffect(() => { verificarAcceso(); }, []);
 
   async function verificarAcceso() {
     const { data } = await supabase.auth.getUser();
@@ -94,13 +91,12 @@ export default function JefeDashboard() {
       return;
     }
 
-    // Sube los anexos opcionales (si el coordinador adjuntó alguno)
     for (const anexo of anexos) {
       const rutaAnexo = `anexos/${Date.now()}-${anexo.name.replace(/\s+/g, '-')}`;
       const { error: anexoUploadError } = await supabase.storage
         .from('contratos-originales')
         .upload(rutaAnexo, anexo, { contentType: 'application/pdf' });
-      if (anexoUploadError) continue; // si falla uno, sigue con los demás
+      if (anexoUploadError) continue;
       const { data: anexoUrlData } = supabase.storage
         .from('contratos-originales')
         .getPublicUrl(rutaAnexo);
@@ -126,91 +122,167 @@ export default function JefeDashboard() {
   const activos = contratos.filter((c) => c.estado !== 'firmado');
   const pendientes = contratos.filter((c) => c.estado === 'pendiente' || c.estado === 'visto').length;
   const firmados = contratos.filter((c) => c.estado === 'firmado').length;
-  const contratosFiltrados = busquedaPlaca.trim()
-    ? activos.filter((c) => normalizarPlaca(c.conductor_placa).includes(normalizarPlaca(busquedaPlaca)))
+
+  const texto = busqueda.trim().toLowerCase();
+  const filtrados = texto
+    ? activos.filter((c) =>
+        normalizarPlaca(c.conductor_placa).includes(normalizarPlaca(busqueda)) ||
+        (c.conductor_nombre || '').toLowerCase().includes(texto) ||
+        (c.titulo || '').toLowerCase().includes(texto))
     : activos;
 
+  // ------------------------------------------------ Formulario
   if (mostrarForm) {
     return (
-      <div className="dashboard-bg panel-admin">
-        <AppHeader />
-        <main className="page">
-          <button className="back-link" onClick={() => setMostrarForm(false)}>← Cancelar</button>
-          <h1 className="page-title">Nuevo contrato</h1>
-          <p className="page-sub">Selecciona el conductor y sube el PDF del contrato.</p>
+      <PanelLayout
+        activo="/jefe"
+        titulo="Nuevo contrato"
+        descripcion="Selecciona el conductor y sube el PDF que va a firmar."
+        acciones={
+          <button className="btn btn-ghost" onClick={() => setMostrarForm(false)}>Cancelar</button>
+        }
+      >
+        <button className="back-link solo-movil" onClick={() => setMostrarForm(false)}>← Cancelar</button>
 
-          {conductores.length === 0 ? (
-            <div className="empty">
-              <div className="empty-title">No tienes conductores registrados</div>
-              <div className="empty-sub">Regístralo primero en la pestaña Conductores</div>
-              <Link href="/jefe/conductores" className="btn btn-primary" style={{ marginTop: 16 }}>
-                Registrar conductor
-              </Link>
-            </div>
-          ) : (
-            <form onSubmit={enviarContrato}>
-              <label style={{ marginTop: 0 }}>Título del contrato</label>
-              <input value={titulo} onChange={(e) => setTitulo(e.target.value)}
-                placeholder="Ej: Contrato de servicio - Ruta X" />
+        {conductores.length === 0 ? (
+          <div className="empty">
+            <div className="empty-title">Todavía no hay conductores registrados</div>
+            <div className="empty-sub">Registra el primero para poder enviarle un contrato</div>
+            <Link href="/jefe/conductores" className="btn btn-primary" style={{ marginTop: 16 }}>
+              Registrar conductor
+            </Link>
+          </div>
+        ) : (
+          <form onSubmit={enviarContrato} className="panel-form">
+            <label style={{ marginTop: 0 }}>Título del contrato</label>
+            <input value={titulo} onChange={(e) => setTitulo(e.target.value)}
+              placeholder="Ej: Contrato de servicio - Ruta Santa Marta" />
 
-              <label>Conductor</label>
-              <select value={placaSeleccionada} onChange={(e) => setPlacaSeleccionada(e.target.value)}>
-                <option value="">Selecciona un conductor...</option>
-                {conductores.map((c) => (
-                  <option key={c.placa} value={c.placa}>
-                    {c.nombre} — {formatearPlaca(c.placa)}
-                  </option>
-                ))}
-              </select>
+            <label>Conductor</label>
+            <select value={placaSeleccionada} onChange={(e) => setPlacaSeleccionada(e.target.value)}>
+              <option value="">Selecciona un conductor…</option>
+              {conductores.map((c) => (
+                <option key={c.placa} value={c.placa}>
+                  {c.nombre} — {formatearPlaca(c.placa)}
+                </option>
+              ))}
+            </select>
 
-              <label>PDF del contrato (se firma este)</label>
-              <input type="file" accept="application/pdf"
-                onChange={(e) => setArchivo(e.target.files[0] || null)} />
+            <label>PDF del contrato (es el que se firma)</label>
+            <input type="file" accept="application/pdf"
+              onChange={(e) => setArchivo(e.target.files[0] || null)} />
 
-              <label>Anexos (opcional, no se firman)</label>
-              <input type="file" accept="application/pdf" multiple
-                onChange={(e) => setAnexos(Array.from(e.target.files || []))} />
-              {anexos.length > 0 && (
-                <div className="card-meta" style={{ marginTop: -10, marginBottom: 16 }}>
-                  {anexos.length} anexo{anexos.length > 1 ? 's' : ''} seleccionado{anexos.length > 1 ? 's' : ''}: {anexos.map((a) => a.name).join(', ')}
-                </div>
-              )}
+            <label>Anexos (opcional, no se firman)</label>
+            <input type="file" accept="application/pdf" multiple
+              onChange={(e) => setAnexos(Array.from(e.target.files || []))} />
+            {anexos.length > 0 && (
+              <div className="card-meta" style={{ marginTop: -10, marginBottom: 16 }}>
+                {anexos.length} anexo{anexos.length > 1 ? 's' : ''}: {anexos.map((a) => a.name).join(', ')}
+              </div>
+            )}
 
-              {error && <div className="error">{error}</div>}
-              <button className="btn btn-stamp" disabled={cargando}>
-                {cargando ? 'Enviando...' : 'Enviar al conductor'}
-              </button>
-            </form>
-          )}
-        </main>
-      </div>
+            {error && <div className="error">{error}</div>}
+            <button className="btn btn-stamp" disabled={cargando}>
+              {cargando ? 'Enviando…' : 'Enviar al conductor'}
+            </button>
+          </form>
+        )}
+      </PanelLayout>
     );
   }
 
+  // ------------------------------------------------ Lista
   return (
-    <div className="dashboard-bg panel-admin">
-      <AppHeader />
-      <main className="page">
-        <h1 className="page-title">Contratos enviados</h1>
-        <p className="page-sub">Gestiona los contratos que has enviado a tus conductores.</p>
-
-        <JefeTabs activo="/jefe" />
-
-        <div className="stat-row">
-          <div className="stat-chip stat-chip-navy">
-            <div className="num">{contratos.length}</div>
-            <div className="lbl">Total</div>
-          </div>
-          <div className="stat-chip stat-chip-amber">
-            <div className="num">{pendientes}</div>
-            <div className="lbl">Por firmar</div>
-          </div>
-          <div className="stat-chip stat-chip-green">
-            <div className="num">{firmados}</div>
-            <div className="lbl">Firmados</div>
-          </div>
+    <PanelLayout
+      activo="/jefe"
+      titulo="Contratos enviados"
+      descripcion="Contratos que esperan firma de tus conductores."
+      acciones={
+        <button className="btn btn-stamp" onClick={() => setMostrarForm(true)}>Nuevo contrato</button>
+      }
+    >
+      {/* ---------- cifras ---------- */}
+      <div className="cifras solo-escritorio">
+        <div className="cifra">
+          <span className="cifra-num">{contratos.length}</span>
+          <span className="cifra-lbl">en total</span>
         </div>
+        <div className="cifra cifra-amber">
+          <span className="cifra-num">{pendientes}</span>
+          <span className="cifra-lbl">por firmar</span>
+        </div>
+        <div className="cifra cifra-green">
+          <span className="cifra-num">{firmados}</span>
+          <span className="cifra-lbl">firmados</span>
+        </div>
+      </div>
 
+      <div className="stat-row solo-movil">
+        <div className="stat-chip stat-chip-navy">
+          <div className="num">{contratos.length}</div><div className="lbl">Total</div>
+        </div>
+        <div className="stat-chip stat-chip-amber">
+          <div className="num">{pendientes}</div><div className="lbl">Por firmar</div>
+        </div>
+        <div className="stat-chip stat-chip-green">
+          <div className="num">{firmados}</div><div className="lbl">Firmados</div>
+        </div>
+      </div>
+
+      {activos.length > 0 && (
+        <div className="panel-filtros">
+          <input
+            type="text"
+            placeholder="Buscar placa, conductor o documento"
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+          />
+        </div>
+      )}
+
+      {/* ---------- escritorio: tabla ---------- */}
+      <div className="solo-escritorio">
+        <div className="tabla-caja">
+          {filtrados.length === 0 ? (
+            <div className="tabla-vacia">
+              <strong>{activos.length === 0 ? 'No hay contratos por firmar' : 'Ningún contrato coincide'}</strong>
+              {activos.length === 0 ? 'Envía uno nuevo con el botón de arriba' : 'Prueba con otra placa o nombre'}
+            </div>
+          ) : (
+            <table className="tabla">
+              <thead>
+                <tr>
+                  <th>Placa</th>
+                  <th>Documento</th>
+                  <th>Conductor</th>
+                  <th>Enviado</th>
+                  <th className="td-fin">Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtrados.map((c) => (
+                  <tr key={c.id}>
+                    <td><span className="plate-badge">{formatearPlaca(c.conductor_placa)}</span></td>
+                    <td className="td-doc">{c.titulo}</td>
+                    <td>{c.conductor_nombre}</td>
+                    <td className="td-suave">
+                      {new Date(c.creado_en).toLocaleDateString('es-CO', {
+                        day: 'numeric', month: 'short', year: 'numeric',
+                      })}
+                    </td>
+                    <td className="td-fin">
+                      <span className={`status status-${c.estado}`}>{ESTADO_LABEL[c.estado]}</span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </div>
+
+      {/* ---------- celular: tarjetas, igual que siempre ---------- */}
+      <div className="solo-movil">
         {activos.length === 0 && (
           <div className="empty">
             <div className="empty-title">No tienes contratos por firmar</div>
@@ -218,17 +290,7 @@ export default function JefeDashboard() {
           </div>
         )}
 
-        {activos.length > 0 && (
-          <input
-            type="text"
-            placeholder="Buscar por placa..."
-            value={busquedaPlaca}
-            onChange={(e) => setBusquedaPlaca(e.target.value)}
-            style={{ marginBottom: 16, textTransform: 'uppercase', fontFamily: 'var(--font-mono)', letterSpacing: '1px' }}
-          />
-        )}
-
-        {contratosFiltrados.map((c) => (
+        {filtrados.map((c) => (
           <div className={`card card-${c.estado}`} key={c.id}>
             <div className="card-row">
               <div>
@@ -247,7 +309,7 @@ export default function JefeDashboard() {
         <div className="exit-row">
           <button className="link-btn" onClick={salir}>Cambiar de usuario</button>
         </div>
-      </main>
-    </div>
+      </div>
+    </PanelLayout>
   );
 }
