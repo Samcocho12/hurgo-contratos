@@ -110,7 +110,11 @@ export default function ConductoresRegistrados() {
             <div className="card-meta">Vence el {vence}</div>
           </div>
 
-          <div className="card" style={{ background: 'rgba(255,196,0,.08)' }}>
+          <div style={{
+            background: '#FFF6E0', border: '1px solid #E8B44A', borderRadius: 14,
+            padding: '14px 16px', color: '#7A4E00', fontSize: 14, lineHeight: 1.5,
+            textAlign: 'left', marginTop: 10,
+          }}>
             <strong>Anótalo o mándalo ahora.</strong> Este código no se vuelve a mostrar:
             en el sistema solo queda guardado de forma cifrada. Si se pierde, genera uno nuevo.
           </div>
@@ -185,11 +189,17 @@ export default function ConductoresRegistrados() {
 
         {pendientes.length > 0 && (
           <>
-            <div className="card" style={{ background: 'rgba(255,196,0,.12)', marginBottom: 4 }}>
-              <strong>
+            <div style={{
+              background: '#FFF6E0',
+              border: '1px solid #E8B44A',
+              borderRadius: 14,
+              padding: '14px 16px',
+              marginBottom: 10,
+            }}>
+              <div style={{ color: '#7A4E00', fontWeight: 800, fontSize: 15 }}>
                 {pendientes.length} solicitud{pendientes.length > 1 ? 'es' : ''} por confirmar
-              </strong>
-              <div className="card-meta" style={{ marginTop: 4 }}>
+              </div>
+              <div style={{ color: '#8A6520', fontSize: 13, marginTop: 4, lineHeight: 1.45 }}>
                 Estas personas se registraron solas. Confirma que de verdad manejan ese vehículo
                 antes de aprobarlas.
               </div>
