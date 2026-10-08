@@ -1,0 +1,149 @@
+import { useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/router';
+import SignatureCanvas from 'react-signature-canvas';
+import { llamarApiConductor } from '../../../lib/apiConductor';
+import AppHeader from '../../../components/AppHeader';
+
+export default function FirmarContrato() {
+  const router = useRouter();
+  const { id } = router.query;
+  const sigPadRef = useRef(null);
+
+  const [contrato, setContrato] = useState(null);
+  const [anexos, setAnexos] = useState([]);
+  const [error, setError] = useState('');
+  const [enviando, setEnviando] = useState(false);
+
+  useEffect(() => {
+    if (localStorage.getItem('hurgo_rol') !== 'conductor') { router.replace('/login'); return; }
+    if (id) cargarContrato();
+  }, [id]);
+
+  async function cargarContrato() {
+    const { ok, datos } = await llamarApiConductor(`/api/conductor/contratos?id=${id}`);
+    if (!ok) {
+      setError(datos?.error || 'No se pudo cargar el contrato.');
+      return;
+    }
+    setContrato(datos.contrato);
+    setAnexos(datos.contrato?.anexos || []);
+  }
+
+  async function confirmarFirma() {
+    setError('');
+    if (sigPadRef.current.isEmpty()) {
+      setError('Dibuja tu firma antes de continuar.');
+      return;
+    }
+    setEnviando(true);
+
+    const firmaPng = sigPadRef.current.getTrimmedCanvas().toDataURL('image/png');
+
+    // El servidor valida la sesion, comprueba que el contrato sea tuyo,
+    // genera el PDF y marca la firma. El navegador ya no escribe en la BD.
+    const { ok, datos } = await llamarApiConductor('/api/generar-pdf', {
+      method: 'POST',
+      body: JSON.stringify({ contratoId: contrato.id, firmaPng }),
+    });
+
+    setEnviando(false);
+    if (!ok) {
+      setError(datos?.error || 'No se pudo guardar la firma. Intenta de nuevo.');
+      return;
+    }
+    router.push('/conductor');
+  }
+
+  if (!contrato) return (
+    <>
+      <AppHeader />
+      <main className="page"><p className="page-sub">Cargando contrato…</p></main>
+    </>
+  );
+
+  if (contrato.estado === 'firmado') {
+    return (
+      <>
+      <AppHeader />
+      <main className="page">
+        <button className="back-link" onClick={() => router.push('/conductor')}>← Volver</button>
+        <h1 className="page-title">{contrato.titulo}</h1>
+        <p className="page-sub">Firmado el {new Date(contrato.firmado_en).toLocaleString('es-CO')}</p>
+
+        {contrato.pdf_firmado_url ? (
+          <iframe src={contrato.pdf_firmado_url} title="Contrato firmado"
+            style={{ width: '100%', height: 420, border: '1px solid var(--line)', borderRadius: 12, marginBottom: 20 }} />
+        ) : contrato.contrato_original_url ? (
+          <iframe src={contrato.contrato_original_url} title="Contrato"
+            style={{ width: '100%', height: 420, border: '1px solid var(--line)', borderRadius: 12, marginBottom: 20 }} />
+        ) : null}
+
+        <ListaAnexos anexos={anexos} />
+
+        <div className="signed-block">
+          <div className="lbl">Tu firma</div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={contrato.firma_png} alt="Firma" style={{ maxHeight: 90 }} />
+        </div>
+        {contrato.pdf_firmado_url && (
+          <a className="btn btn-ghost" href={contrato.pdf_firmado_url} target="_blank" rel="noreferrer">
+            Descargar PDF firmado
+          </a>
+        )}
+      </main>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <AppHeader />
+      <main className="page">
+        <button className="back-link" onClick={() => router.push('/conductor')}>← Volver</button>
+        <h1 className="page-title">{contrato.titulo}</h1>
+        <p className="page-sub">Lee el contrato completo antes de firmar.</p>
+
+        {contrato.contrato_original_url ? (
+          <iframe src={contrato.contrato_original_url} title="Contrato"
+            style={{ width: '100%', height: 420, border: '1px solid var(--line)', borderRadius: 12, marginBottom: 20 }} />
+        ) : (
+          <div className="contract-paper">{contrato.contenido || 'Este contrato no tiene contenido cargado.'}</div>
+        )}
+
+        <ListaAnexos anexos={anexos} />
+
+        <label style={{ marginTop: 0 }}>Tu firma</label>
+        <div className="sign-box">
+          <SignatureCanvas
+            ref={sigPadRef}
+            penColor="#16215C"
+            canvasProps={{ className: 'sig-canvas' }}
+          />
+        </div>
+        <div className="sign-tools">
+          <button className="link-btn" onClick={() => sigPadRef.current.clear()}>Borrar firma</button>
+        </div>
+
+        {error && <div className="error">{error}</div>}
+        <button className="btn btn-stamp" onClick={confirmarFirma} disabled={enviando}>
+          {enviando ? 'Guardando firma...' : 'Firmar y aceptar contrato'}
+        </button>
+      </main>
+    </>
+  );
+}
+
+function ListaAnexos({ anexos }) {
+  if (!anexos || anexos.length === 0) return null;
+  return (
+    <div style={{ marginBottom: 20 }}>
+      <label style={{ marginTop: 0 }}>Anexos ({anexos.length})</label>
+      {anexos.map((a) => (
+        <a key={a.id} href={a.url} target="_blank" rel="noreferrer"
+          className="btn btn-ghost btn-sm" style={{ marginRight: 8, marginBottom: 8, display: 'inline-flex' }}>
+          📎 {a.nombre}
+        </a>
+      ))}
+    </div>
+  );
+}

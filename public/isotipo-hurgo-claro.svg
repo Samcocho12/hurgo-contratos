@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 514.19 307.95" width="514" height="308">
+  <title>Hurgo Transporte - isotipo</title>
+  <defs>
+    <linearGradient id="hurgo-t" gradientUnits="userSpaceOnUse" x1="0" y1="307.68" x2="0" y2="0.22">
+      <stop offset="0.000" stop-color="#B2B4B3"/>
+      <stop offset="0.336" stop-color="#B9BBB9"/>
+      <stop offset="0.414" stop-color="#C2C4C2"/>
+      <stop offset="0.477" stop-color="#CBCCCA"/>
+      <stop offset="0.531" stop-color="#D2D4D1"/>
+      <stop offset="0.605" stop-color="#DADBD9"/>
+      <stop offset="0.648" stop-color="#E1E2DF"/>
+      <stop offset="0.707" stop-color="#E8E9E6"/>
+      <stop offset="0.773" stop-color="#F0F0EF"/>
+      <stop offset="0.816" stop-color="#F8F8F7"/>
+      <stop offset="1.000" stop-color="#FFFFFF"/>
+    </linearGradient>
+    <clipPath id="hurgo-h-clip">
+      <rect x="0" y="0" width="259" height="307.95"/>
+    </clipPath>
+  </defs>
+  <path fill="#FFFFFF" fill-rule="evenodd" clip-path="url(#hurgo-h-clip)" d="M 114.61 306.95 L 129.65 237.91 L 239.42 237.49 L 258.55 152.08 L 149.35 152.80 L 181.88 1.16 C 172.95 0.28 122.33 0.96 109.05 0.97 C 49.08 1.05 53.75 28.34 41.44 85.52 L 7.02 243.57 C 2.51 264.52 -7.70 288.61 10.13 300.77 C 14.71 303.90 21.58 306.57 29.66 306.60 L 114.61 306.95"/>
+  <path fill="url(#hurgo-t)" fill-rule="evenodd" d="M 202.84 74.84 L 292.25 74.71 L 242.08 306.66 C 251.92 308.25 328.51 307.90 338.31 306.14 C 371.23 300.25 370.14 275.97 377.34 244.71 C 383.79 216.66 389.51 188.65 395.88 160.43 C 402.23 132.26 407.44 103.10 414.18 75.43 L 502.74 75.12 C 506.02 66.92 509.87 44.62 511.94 34.92 C 515.69 17.38 512.37 8.56 498.74 3.80 C 482.94 -1.70 427.77 0.77 406.78 0.75 C 394.05 0.74 225.78 -0.31 217.87 1.21 Z M 202.84 74.84"/>
+</svg>
